@@ -1,0 +1,4229 @@
+openapi: 3.0.2
+info:
+  title: FastAPI
+  version: "1"
+servers:
+- url: /
+paths:
+  /apps/status:
+    get:
+      operationId: apps_status_apps_status_get
+      responses:
+        "200":
+          content:
+            application/json:
+              schema: {}
+          description: "\nReturns a JSON list with the current status of all **installed**\
+            \ apps\n```\n[\n    {\n        id: 'specter',\n        name: 'Specter\
+            \ Desktop',\n        status: 'online'\n    },\n    {\n        id: 'sphinx',\n\
+            \        name: 'Sphinx Chat',\n        status: 'online'\n    },\n   ...\n\
+            ]\n```\n"
+      security:
+      - JWTBearer: []
+      summary: Get the status available apps.
+      tags:
+      - Apps
+  /apps/status/{id}:
+    get:
+      operationId: apps_status_apps_status__id__get
+      parameters:
+      - explode: false
+        in: path
+        name: id
+        required: true
+        schema:
+          title: Id
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - JWTBearer: []
+      summary: Get the status of a single app by id.
+      tags:
+      - Apps
+  /apps/status-sub:
+    get:
+      operationId: apps_status_sub_apps_status_sub_get
+      responses:
+        "200":
+          content:
+            application/json:
+              schema: {}
+          description: "\nSends a JSON object with the status of an app if it changes.\n\
+            ```\n{\n    id: 'specter',\n    name: 'Specter Desktop',\n    status:\
+            \ 'online'\n},\n```\n"
+      security:
+      - JWTBearer: []
+      summary: Subscribe to status changes of currently installed apps.
+      tags:
+      - Apps
+  /apps/install/{name}:
+    post:
+      operationId: apps_install_apps_install__name__post
+      parameters:
+      - explode: false
+        in: path
+        name: name
+        required: true
+        schema:
+          title: Name
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - JWTBearer: []
+      summary: Install app
+      tags:
+      - Apps
+  /apps/uninstall/{name}:
+    post:
+      operationId: apps_install_apps_uninstall__name__post
+      parameters:
+      - explode: false
+        in: path
+        name: name
+        required: true
+        schema:
+          title: Name
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UninstallData'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - JWTBearer: []
+      summary: Uninstall app
+      tags:
+      - Apps
+  /bitcoin/btc-info:
+    get:
+      description: Get general information about bitcoin core. Combines most important
+        information from `getblockchaininfo` and `getnetworkinfo`
+      operationId: bitcoin_btc_info_bitcoin_btc_info_get
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BtcInfo'
+          description: Successful Response
+      security:
+      - JWTBearer: []
+      summary: Bitcoin.Btc-Info
+      tags:
+      - Bitcoin Core
+  /bitcoin/get-block-count:
+    get:
+      description: "See documentation on [bitcoincore.org](https://bitcoincore.org/en/doc/0.21.0/rpc/blockchain/getblockcount/)"
+      operationId: bitcoin_get_block_count_bitcoin_get_block_count_get
+      responses:
+        "200":
+          content:
+            application/json:
+              schema: {}
+          description: "A JSON String with relevant information.\n\n```json\n{\n \
+            \ \"result\": 682621,\n  \"error\": null,\n  \"id\": 0\n}\n"
+      security:
+      - JWTBearer: []
+      summary: Get the current block count
+      tags:
+      - Bitcoin Core
+  /bitcoin/get-blockchain-info:
+    get:
+      description: "See documentation on [bitcoincore.org](https://bitcoincore.org/en/doc/0.21.0/rpc/blockchain/getblockchaininfo/)"
+      operationId: bitcoin_get_blockchain_info_bitcoin_get_blockchain_info_get
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BlockchainInfo'
+          description: A JSON String with relevant information.
+      security:
+      - JWTBearer: []
+      summary: Get the current blockchain status
+      tags:
+      - Bitcoin Core
+  /bitcoin/estimate-fee:
+    get:
+      description: "Estimates the fee for the given parameters.\n    See documentation\
+        \ on [bitcoin.org](https://developer.bitcoin.org/reference/rpc/estimatesmartfee.html)\n\
+        \    "
+      operationId: bitcoin_estimate_fee_bitcoin_estimate_fee_get
+      parameters:
+      - description: Confirmation target in blocks.
+        explode: true
+        in: query
+        name: target_conf
+        required: false
+        schema:
+          default: 6
+          description: Confirmation target in blocks.
+          title: Target Conf
+          type: integer
+        style: form
+      - description: "Whether to return a more conservative estimate which also satisfies\
+          \ a longer history. A conservative estimate potentially returns a higher\
+          \ feerate and is more likely to be sufficient for the desired target, but\
+          \ is not as responsive to short term drops in the prevailing fee market."
+        explode: true
+        in: query
+        name: mode
+        required: false
+        schema:
+          allOf:
+          - $ref: '#/components/schemas/FeeEstimationMode'
+          description: "Whether to return a more conservative estimate which also\
+            \ satisfies a longer history. A conservative estimate potentially returns\
+            \ a higher feerate and is more likely to be sufficient for the desired\
+            \ target, but is not as responsive to short term drops in the prevailing\
+            \ fee market."
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                title: Response Bitcoin Estimate Fee Bitcoin Estimate Fee Get
+                type: integer
+          description: The estimated fee in satoshis
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - JWTBearer: []
+      summary: Get current fee estimation from Bitcoin Core
+      tags:
+      - Bitcoin Core
+  /bitcoin/get-network-info:
+    get:
+      description: "See documentation on [bitcoincore.org](https://bitcoincore.org/en/doc/0.21.0/rpc/network/getnetworkinfo/)"
+      operationId: bitcoin_get_network_info_bitcoin_get_network_info_get
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NetworkInfo'
+          description: A JSON String with relevant information.
+      security:
+      - JWTBearer: []
+      summary: Get information about the network
+      tags:
+      - Bitcoin Core
+  /bitcoin/block-sub:
+    get:
+      description: "\nSimilar to Bitcoin Core getblock\n\nSSE endpoint to receive\
+        \ new block information as soon as it is appended to chain.\n\nIf verbosity\
+        \ is 0, returns a string that is serialized, hex-encoded data for block 'hash'.<br>\n\
+        If verbosity is 1, returns an Object with information about block <hash>.<br>\n\
+        If verbosity is 2, returns an Object with information about block <hash> and\
+        \ information about each transaction.<br>\n"
+      operationId: bitcoin_block_sub_bitcoin_block_sub_get
+      parameters:
+      - explode: true
+        in: query
+        name: verbosity
+        required: false
+        schema:
+          default: 1
+          title: Verbosity
+          type: integer
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              schema: {}
+          description: A JSON object with information about the new block.
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - JWTBearer: []
+      summary: Subscribe to incoming blocks.
+      tags:
+      - Bitcoin Core
+  /lightning/add-invoice:
+    post:
+      description: "For additional information see [LND docs](https://api.lightning.community/#addinvoice)"
+      operationId: lightning_add_invoice_lightning_add_invoice_post
+      parameters:
+      - explode: true
+        in: query
+        name: value_msat
+        required: true
+        schema:
+          title: Value Msat
+          type: integer
+        style: form
+      - explode: true
+        in: query
+        name: memo
+        required: false
+        schema:
+          default: ""
+          title: Memo
+          type: string
+        style: form
+      - explode: true
+        in: query
+        name: expiry
+        required: false
+        schema:
+          default: 3600
+          title: Expiry
+          type: integer
+        style: form
+      - explode: true
+        in: query
+        name: is_keysend
+        required: false
+        schema:
+          default: false
+          title: Is Keysend
+          type: boolean
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Invoice'
+          description: Successful Response
+        "423":
+          description: "LND only: Wallet is locked. Unlock via /lightning/unlock-wallet."
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - JWTBearer: []
+      summary: Addinvoice adds a new Invoice to the database.
+      tags:
+      - Lightning
+  /lightning/get-balance:
+    get:
+      operationId: lightning_get_balance_lightning_get_balance_get
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WalletBalance'
+          description: |2-
+
+            A JSON String with on chain wallet balances with on-chain balances in
+            **sat** and channel balances in **msat**. Detailed description is in
+            the schema
+        "423":
+          description: "LND only: Wallet is locked. Unlock via /lightning/unlock-wallet."
+      security:
+      - JWTBearer: []
+      summary: Get the current on chain and channel balances of the lighting wallet.
+      tags:
+      - Lightning
+  /lightning/get-fee-revenue:
+    get:
+      description: "\nCurrently, year and total fees are always null. Backends don't\
+        \ return these values by default.\nImplementation in BlitzAPI is a [to-do](https://github.com/fusion44/blitz_api/issues/64).\n\
+        \    "
+      operationId: lightning_get_fee_revenue_lightning_get_fee_revenue_get
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FeeRevenue'
+          description: Successful Response
+        "423":
+          description: "LND only: Wallet is locked. Unlock via /lightning/unlock-wallet."
+      security:
+      - JWTBearer: []
+      summary: "Returns the daily, weekly and monthly fee revenue earned."
+      tags:
+      - Lightning
+  /lightning/list-all-tx:
+    get:
+      description: "Returns a list with all on-chain transaction, payments and invoices\
+        \ combined into one list.\n    The index of each tx is only valid for each\
+        \ identical set of parameters.\n    "
+      operationId: lightning_list_all_tx_lightning_list_all_tx_get
+      parameters:
+      - description: "If set, only successful transaction will be returned in the\
+          \ response."
+        explode: true
+        in: query
+        name: successful_only
+        required: false
+        schema:
+          default: false
+          description: "If set, only successful transaction will be returned in the\
+            \ response."
+          title: Successful Only
+          type: boolean
+        style: form
+      - description: The index of an transaction that will be used as either the start
+          or end of a query to determine which invoices should be returned in the
+          response.
+        explode: true
+        in: query
+        name: index_offset
+        required: false
+        schema:
+          default: 0
+          description: The index of an transaction that will be used as either the
+            start or end of a query to determine which invoices should be returned
+            in the response.
+          title: Index Offset
+          type: integer
+        style: form
+      - description: The max number of transaction to return in the response to this
+          query. Will return all transactions when set to 0 or null.
+        explode: true
+        in: query
+        name: max_tx
+        required: false
+        schema:
+          default: 0
+          description: The max number of transaction to return in the response to
+            this query. Will return all transactions when set to 0 or null.
+          title: Max Tx
+          type: integer
+        style: form
+      - description: "If set, the transactions returned will result from seeking backwards\
+          \ from the specified index offset. This can be used to paginate backwards."
+        explode: true
+        in: query
+        name: reversed
+        required: false
+        schema:
+          default: false
+          description: "If set, the transactions returned will result from seeking\
+            \ backwards from the specified index offset. This can be used to paginate\
+            \ backwards."
+          title: Reversed
+          type: boolean
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/GenericTx'
+                title: Response Lightning List All Tx Lightning List All Tx Get
+                type: array
+          description: Successful Response
+        "423":
+          description: "LND only: Wallet is locked. Unlock via /lightning/unlock-wallet."
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - JWTBearer: []
+      summary: "Lists all on-chain transactions, payments and invoices in the wallet"
+      tags:
+      - Lightning
+  /lightning/list-invoices:
+    get:
+      operationId: lightning_list_invoices_lightning_list_invoices_get
+      parameters:
+      - description: "If set, only invoices that are not settled and not canceled\
+          \ will be returned in the response."
+        explode: true
+        in: query
+        name: pending_only
+        required: false
+        schema:
+          default: false
+          description: "If set, only invoices that are not settled and not canceled\
+            \ will be returned in the response."
+          title: Pending Only
+          type: boolean
+        style: form
+      - description: The index of an invoice that will be used as either the start
+          or end of a query to determine which invoices should be returned in the
+          response.
+        explode: true
+        in: query
+        name: index_offset
+        required: false
+        schema:
+          default: 0
+          description: The index of an invoice that will be used as either the start
+            or end of a query to determine which invoices should be returned in the
+            response.
+          title: Index Offset
+          type: integer
+        style: form
+      - description: The max number of invoices to return in the response to this
+          query. Will return all invoices when set to 0 or null.
+        explode: true
+        in: query
+        name: num_max_invoices
+        required: false
+        schema:
+          default: 0
+          description: The max number of invoices to return in the response to this
+            query. Will return all invoices when set to 0 or null.
+          title: Num Max Invoices
+          type: integer
+        style: form
+      - description: "If set, the invoices returned will result from seeking backwards\
+          \ from the specified index offset. This can be used to paginate backwards."
+        explode: true
+        in: query
+        name: reversed
+        required: false
+        schema:
+          default: false
+          description: "If set, the invoices returned will result from seeking backwards\
+            \ from the specified index offset. This can be used to paginate backwards."
+          title: Reversed
+          type: boolean
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/Invoice'
+                title: Response Lightning List Invoices Lightning List Invoices Get
+                type: array
+          description: A list of all invoices created.
+        "423":
+          description: "LND only: Wallet is locked. Unlock via /lightning/unlock-wallet."
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - JWTBearer: []
+      summary: Lists all invoices from the wallet. Modeled after LND implementation.
+      tags:
+      - Lightning
+  /lightning/list-onchain-tx:
+    get:
+      operationId: lightning_list_onchain_tx_lightning_list_onchain_tx_get
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/OnChainTransaction'
+                title: Response Lightning List Onchain Tx Lightning List Onchain Tx
+                  Get
+                type: array
+          description: A list of all on-chain transactions made.
+        "423":
+          description: "LND only: Wallet is locked. Unlock via /lightning/unlock-wallet."
+      security:
+      - JWTBearer: []
+      summary: Lists all onchain transactions from the wallet
+      tags:
+      - Lightning
+  /lightning/list-payments:
+    get:
+      operationId: lightning_list_payments_lightning_list_payments_get
+      parameters:
+      - description: "If true, then return payments that have not yet fully completed.\
+          \ This means that pending payments, as well as failed payments will show\
+          \ up if this field is set to true. This flag doesn't change the meaning\
+          \ of the indices, which are tied to individual payments."
+        explode: true
+        in: query
+        name: include_incomplete
+        required: false
+        schema:
+          default: true
+          description: "If true, then return payments that have not yet fully completed.\
+            \ This means that pending payments, as well as failed payments will show\
+            \ up if this field is set to true. This flag doesn't change the meaning\
+            \ of the indices, which are tied to individual payments."
+          title: Include Incomplete
+          type: boolean
+        style: form
+      - description: "The index of a payment that will be used as either the start\
+          \ or end of a query to determine which payments should be returned in the\
+          \ response. The index_offset is exclusive. In the case of a zero index_offset,\
+          \ the query will start with the oldest payment when paginating forwards,\
+          \ or will end with the most recent payment when paginating backwards."
+        explode: true
+        in: query
+        name: index_offset
+        required: false
+        schema:
+          default: 0
+          description: "The index of a payment that will be used as either the start\
+            \ or end of a query to determine which payments should be returned in\
+            \ the response. The index_offset is exclusive. In the case of a zero index_offset,\
+            \ the query will start with the oldest payment when paginating forwards,\
+            \ or will end with the most recent payment when paginating backwards."
+          title: Index Offset
+          type: integer
+        style: form
+      - description: The maximal number of payments returned in the response to this
+          query.
+        explode: true
+        in: query
+        name: max_payments
+        required: false
+        schema:
+          default: 0
+          description: The maximal number of payments returned in the response to
+            this query.
+          title: Max Payments
+          type: integer
+        style: form
+      - description: "If set, the payments returned will result from seeking backwards\
+          \ from the specified index offset. This can be used to paginate backwards.\
+          \ The order of the returned payments is always oldest first (ascending index\
+          \ order)."
+        explode: true
+        in: query
+        name: reversed
+        required: false
+        schema:
+          default: false
+          description: "If set, the payments returned will result from seeking backwards\
+            \ from the specified index offset. This can be used to paginate backwards.\
+            \ The order of the returned payments is always oldest first (ascending\
+            \ index order)."
+          title: Reversed
+          type: boolean
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/Payment'
+                title: Response Lightning List Payments Lightning List Payments Get
+                type: array
+          description: A list of all payments made.
+        "423":
+          description: "LND only: Wallet is locked. Unlock via /lightning/unlock-wallet."
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - JWTBearer: []
+      summary: Returns a list of all outgoing payments. Modeled after LND implementation.
+      tags:
+      - Lightning
+  /lightning/new-address:
+    post:
+      description: "\nGenerate a wallet new address. Address-types has to be one of:\n\
+        * **p2wkh**:  Pay to witness key hash (bech32)\n* **np2wkh**: Pay to nested\
+        \ witness key hash\n    "
+      operationId: lightning_new_address_lightning_new_address_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewAddressInput'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                title: Response Lightning New Address Lightning New Address Post
+                type: string
+          description: The newly generated wallet address
+        "423":
+          description: "LND only: Wallet is locked. Unlock via /lightning/unlock-wallet."
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - JWTBearer: []
+      summary: Generate a new on-chain address
+      tags:
+      - Lightning
+  /lightning/send-coins:
+    post:
+      description: "\n__send-coins__ executes a request to send coins to a particular\
+        \ address.\n\n### LND:\nIf neither __target_conf__, or __sat_per_vbyte__ are\
+        \ set, then the internal wallet will consult its fee model to determine a\
+        \ fee for the default confirmation target.\n\n> \U0001f449 See [https://api.lightning.community/?shell#sendcoins](https://api.lightning.community/?shell#sendcoins)\n\
+        \n### c-lightning:\n* Set __target_conf__ ==1: interpreted as urgent (aim\
+        \ for next block)\n* Set __target_conf__ >=2: interpreted as normal (next\
+        \ 4 blocks or so, **default**)\n* Set __target_cont__ >=10: interpreted as\
+        \ slow (next 100 blocks or so)\n* If __sat_per_vbyte__ is set then __target_conf__\
+        \ is ignored and vbytes (sipabytes) will be used.\n\n> \U0001f449 See [https://lightning.readthedocs.io/lightning-txprepare.7.html](https://lightning.readthedocs.io/lightning-txprepare.7.html)\n"
+      operationId: lightning_send_coins_lightning_send_coins_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SendCoinsInput'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SendCoinsResponse'
+          description: Either an error or a SendCoinsResponse object on success
+        "412":
+          description: When not enough funds are available.
+        "423":
+          description: "LND only: Wallet is locked. Unlock via /lightning/unlock-wallet."
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - JWTBearer: []
+      summary: Attempt to send on-chain funds.
+      tags:
+      - Lightning
+  /lightning/open-channel:
+    post:
+      description: "\n__open-channel__ attempts to open a channel with a peer.\n\n\
+        ### LND:\n_target_conf_: The target number of blocks that the funding transaction\
+        \ should be confirmed by.\n\n### c-lightning:\n* Set _target_conf_ ==1: interpreted\
+        \ as urgent (aim for next block)\n* Set _target_conf_ >=2: interpreted as\
+        \ normal (next 4 blocks or so, **default**)\n* Set _target_cont_ >=10: interpreted\
+        \ as slow (next 100 blocks or so)\n\n> \U0001f449 See [https://lightning.readthedocs.io/lightning-txprepare.7.html](https://lightning.readthedocs.io/lightning-txprepare.7.html)\n"
+      operationId: lightning_open_channel_lightning_open_channel_post
+      parameters:
+      - explode: true
+        in: query
+        name: local_funding_amount
+        required: true
+        schema:
+          title: Local Funding Amount
+          type: integer
+        style: form
+      - explode: true
+        in: query
+        name: node_URI
+        required: true
+        schema:
+          title: Node Uri
+          type: string
+        style: form
+      - explode: true
+        in: query
+        name: target_confs
+        required: false
+        schema:
+          default: 3
+          title: Target Confs
+          type: integer
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                title: Response Lightning Open Channel Lightning Open Channel Post
+                type: string
+          description: Successful Response
+        "412":
+          description: When not enough funds are available.
+        "423":
+          description: "LND only: Wallet is locked. Unlock via /lightning/unlock-wallet."
+        "504":
+          description: When the peer is not reachable.
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - JWTBearer: []
+      summary: open a new lightning channel
+      tags:
+      - Lightning
+  /lightning/list-channels:
+    get:
+      operationId: lightning_list_channels_lightning_list_channels_get
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/Channel'
+                title: Response Lightning List Channels Lightning List Channels Get
+                type: array
+          description: A list of all open channels.
+        "423":
+          description: "LND only: Wallet is locked. Unlock via /lightning/unlock-wallet."
+      security:
+      - JWTBearer: []
+      summary: Returns a list of open channels
+      tags:
+      - Lightning
+  /lightning/close-channel:
+    post:
+      description: "For additional information see [LND docs](https://api.lightning.community/#closechannel)"
+      operationId: lightning_close_channel_lightning_close_channel_post
+      parameters:
+      - explode: true
+        in: query
+        name: channel_id
+        required: true
+        schema:
+          title: Channel Id
+          type: string
+        style: form
+      - explode: true
+        in: query
+        name: force_close
+        required: true
+        schema:
+          title: Force Close
+          type: boolean
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                title: Response Lightning Close Channel Lightning Close Channel Post
+                type: string
+          description: Successful Response
+        "423":
+          description: "LND only: Wallet is locked. Unlock via /lightning/unlock-wallet."
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - JWTBearer: []
+      summary: close a channel
+      tags:
+      - Lightning
+  /lightning/send-payment:
+    post:
+      description: |2
+
+        This endpoints attempts to pay a payment request.
+
+        Intermediate status updates will be sent via the SSE channel. This endpoint returns the last success or error message from the node.
+      operationId: lightning_send_payment_lightning_send_payment_post
+      parameters:
+      - explode: true
+        in: query
+        name: pay_req
+        required: true
+        schema:
+          title: Pay Req
+          type: string
+        style: form
+      - explode: true
+        in: query
+        name: timeout_seconds
+        required: false
+        schema:
+          default: 5
+          title: Timeout Seconds
+          type: integer
+        style: form
+      - explode: true
+        in: query
+        name: fee_limit_msat
+        required: false
+        schema:
+          default: 8000
+          title: Fee Limit Msat
+          type: integer
+        style: form
+      - explode: true
+        in: query
+        name: amount_msat
+        required: false
+        schema:
+          title: Amount Msat
+          type: integer
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Payment'
+          description: Either an error or a Payment object on success
+        "400":
+          description: |2
+
+            Possible error messages:
+            * invalid bech32 string
+            * amount must be specified when paying a zero amount invoice
+            * amount must not be specified when paying a non-zero amount invoice
+        "409":
+          description: "[LND only] When attempting to pay an already paid invoice.\
+            \ CLN will return the payment object of the previously paid invoice. Info:\
+            \ [GitHub](https://github.com/fusion44/blitz_api/issues/131)"
+        "423":
+          description: "LND only: Wallet is locked. Unlock via /lightning/unlock-wallet."
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - JWTBearer: []
+      summary: Attempt to pay a payment request.
+      tags:
+      - Lightning
+  /lightning/get-info:
+    get:
+      operationId: lightning_get_info_lightning_get_info_get
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LnInfo'
+          description: Either an error or a LnInfo object on success
+        "423":
+          description: "LND only: Wallet is locked. Unlock via /lightning/unlock-wallet."
+      security:
+      - JWTBearer: []
+      summary: Request information about the currently running lightning node.
+      tags:
+      - Lightning
+  /lightning/get-info-lite:
+    get:
+      operationId: lightning_get_info_lite_lightning_get_info_lite_get
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LightningInfoLite'
+          description: Successful Response
+        "423":
+          description: "LND only: Wallet is locked. Unlock via /lightning/unlock-wallet."
+      security:
+      - JWTBearer: []
+      summary: Get lightweight current lightning info. Less verbose version of /lightning/get-info
+      tags:
+      - Lightning
+  /lightning/decode-pay-req:
+    get:
+      operationId: lightning_decode_pay_req_lightning_decode_pay_req_get
+      parameters:
+      - description: The payment request string to be decoded
+        explode: true
+        in: query
+        name: pay_req
+        required: true
+        schema:
+          description: The payment request string to be decoded
+          title: Pay Req
+          type: string
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentRequest'
+          description: A fully decoded payment request or a HTTP status 400 if the
+            payment request cannot be decoded.
+        "423":
+          description: "LND only: Wallet is locked. Unlock via /lightning/unlock-wallet."
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - JWTBearer: []
+      summary: "DecodePayReq takes an encoded payment request string and attempts\
+        \ to decode it, returning a full description of the conditions encoded within\
+        \ the payment request."
+      tags:
+      - Lightning
+  /lightning/unlock-wallet:
+    post:
+      operationId: lightning_unlock_wallet_lightning_unlock_wallet_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UnlockWalletInput'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                title: Response Lightning Unlock Wallet Lightning Unlock Wallet Post
+                type: boolean
+          description: "\n`True` if ok, `False` otherwise\n\n### LND:\nThis call will\
+            \ wait until the LND daemon is fully ready to accept calls. Internally\
+            \ it'll call GetInfo every\n0.1 seconds and returns True for the first\
+            \ successful call.\n\n> ℹ️ _After the unlock the LND-gRPC server takes\
+            \ a bit of time to boot up._\n\n### Core Lightning:\n\n> ℹ️ _Platform:\
+            \ Native_ CLN doesn't support wallet locking and will return True immediately.\n\
+            \n> ℹ️ _Platform: RaspiBlitz_ RaspiBlitz has its own locking implementation\
+            \ on top of CLN. Will unlock and return True if successful. Might take\
+            \ a few seconds. If it takes longer than 60 seconds it'll return an error.\n"
+        "401":
+          description: "Either JWT token is not ok OR wallet password is wrong, observe\
+            \ the detail message."
+        "412":
+          description: Wallet already unlocked
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - JWTBearer: []
+      summary: Unlocks a locked wallet.
+      tags:
+      - Lightning
+  /system/login:
+    post:
+      operationId: system_login_system_login_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginInput'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema: {}
+          description: JWT token for the current session.
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Logs the user in with the current password
+      tags:
+      - System
+  /system/refresh-token:
+    post:
+      operationId: system_refresh_token_system_refresh_token_post
+      responses:
+        "200":
+          content:
+            application/json:
+              schema: {}
+          description: Returns a fresh JWT token.
+      security:
+      - JWTBearer: []
+      summary: Endpoint to refresh an authentication token
+      tags:
+      - System
+  /system/change-password:
+    post:
+      operationId: system_change_password_system_change_password_post
+      parameters:
+      - explode: true
+        in: query
+        name: type
+        required: true
+        schema:
+          title: Type
+          type: string
+        style: form
+      - explode: true
+        in: query
+        name: old_password
+        required: true
+        schema:
+          title: Old Password
+          type: string
+        style: form
+      - explode: true
+        in: query
+        name: new_password
+        required: true
+        schema:
+          title: New Password
+          type: string
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              schema: {}
+          description: if 200 OK - password change worked
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - JWTBearer: []
+      summary: "Endpoint to change your password a, b or c"
+      tags:
+      - System
+  /system/get-system-info:
+    get:
+      operationId: system_get_system_info_system_get_system_info_get
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SystemInfo'
+          description: Successful Response
+        "423":
+          description: Wallet is locked. Unlock via /lightning/unlock-wallet
+      security:
+      - JWTBearer: []
+      summary: Get system status information
+      tags:
+      - System
+  /system/hardware-info:
+    get:
+      operationId: system_hardware_info_system_hardware_info_get
+      responses:
+        "200":
+          content:
+            application/json:
+              schema: {}
+          description: "Returns a JSON string with hardware information:\n\n```JSON\n\
+            {\n  \"cpu_overall_percent\": 15.8,\n  \"cpu_per_cpu_percent\": [\n  \
+            \  11.8,\n    6.1,\n    12.5\n  ],\n  \"vram_total_bytes\": 25134919680,\n\
+            \  \"vram_available_bytes\": 17240051712,\n  \"vram_used_bytes\": 6044856320,\n\
+            \  \"vram_usage_percent\": 31.4,\n  \"swap_ram_total_bytes\": 2147479552,\n\
+            \  \"swap_used_bytes\": 0,\n  \"swap_usage_bytes\": 0,\n  \"temperatures_celsius\"\
+            : {\n    \"coretemp\": [\n      [\n        \"Core 1\",\n        51,\n\
+            \        84,\n        100\n      ],\n      [\n        \"Core 2\",\n  \
+            \      53,\n        84,\n        100\n      ],\n      [\n        \"Core\
+            \ 3\",\n        50,\n        84,\n        100\n      ]\n    ]\n  },\n\
+            \  \"boot_time_timestamp\": 1623486468,\n  \"disk_io_read_count\": 254574,\n\
+            \  \"disk_io_write_count\": 133353,\n  \"disk_io_read_bytes\": 5306839040,\n\
+            \  \"disk_io_write_bytes\": 5593076736,\n  \"disks\": [\n    {\n     \
+            \ \"device\": \"/dev/sda1\",\n      \"mountpoint\": \"/boot/efi\",\n \
+            \     \"filesystem_type\": \"vfat\",\n      \"partition_total_bytes\"\
+            : 535805952,\n      \"partition_used_bytes\": 8228864,\n      \"partition_free_bytes\"\
+            : 527577088,\n      \"partition_percent\": 1.5\n    },\n    {\n      \"\
+            device\": \"/dev/sda2\",\n      \"mountpoint\": \"/\",\n      \"filesystem_type\"\
+            : \"ext4\",\n      \"partition_total_bytes\": 250438021120,\n      \"\
+            partition_used_bytes\": 177157742592,\n      \"partition_free_bytes\"\
+            : 60487389184,\n      \"partition_percent\": 74.5\n    }\n  ],\n  \"networks\"\
+            : [\n    {\n      \"interface_name\": \"lo\",\n      \"address\": \"127.0.0.1\"\
+            ,\n      \"mac_address\": \"00:00:00:00:00:00\"\n    },\n    {\n     \
+            \ \"interface_name\": \"enp4s0\",\n      \"address\": \"192.168.1.23\"\
+            ,\n      \"mac_address\": \"35:a3:5c:6a:4a:f0\"\n    }\n  ],\n  \"networks_bytes_sent\"\
+            : 137088249,\n  \"networks_bytes_received\": 1603400654\n}\n```\n"
+      security:
+      - JWTBearer: []
+      summary: Get hardware status information.
+      tags:
+      - System
+  /system/connection-info:
+    get:
+      operationId: system_connection_info_system_connection_info_get
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConnectionInfo'
+          description: Returns a JSON string with credential information.
+      security:
+      - JWTBearer: []
+      summary: Get credential information to connect external apps.
+      tags:
+      - System
+  /system/get-debug-logs-raw:
+    get:
+      description: |2
+
+        This endpoint will gather latest system logs and return it in a
+        raw string. This endpoint will **not** return immediately because
+        it gathers all data on time of the request.
+      operationId: system_get_debug_logs_raw_system_get_debug_logs_raw_get
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RawDebugLogData'
+          description: "\nThe latest system log as a string of text.\n\nReturns a\
+            \ `HTTP_INTERNAL_SERVER_ERROR` with status code 500 if script execution\
+            \ fails on server.\n\nExample output in `raw_data`:\n\n```\n***************************************************************\n\
+            * RASPIBLITZ DEBUG LOGS\n***************************************************************\n\
+            blitzversion: 1.7.0\nchainnetwork: bitcoin / main\n 15:27:34 up  4:10,\
+            \  3 users,  load average: 1.23, 1.36, 1.38\n\n*** BLOCKCHAIN SYSTEMD\
+            \ STATUS ***\n● bitcoind.service - Bitcoin daemon\n   Loaded: loaded (/etc/systemd/system/bitcoind.service;\
+            \ enabled; vendor preset: enabled)\n   Active: active (running) since\
+            \ Tue 2021-09-14 11:16:51 BST; 4h 10min ago\n  Process: 1718 ExecStartPre=/home/admin/config.scripts/blitz.systemd.sh\
+            \ log blockchain STARTED (code=exited, status=0/SUCCESS)\n  Process: 1724\
+            \ ExecStart=/usr/local/bin/bitcoind -daemon -conf=/home/bitcoin/.bitcoin/bitcoin.conf\
+            \ -pid=/mnt/hdd/bitcoin/bitcoind.pid (code=exited, status=0/SUCCESS)\n\
+            \ Main PID: 1765 (bitcoind)\n    Tasks: 12 (limit: 4533)\n   CGroup: /system.slice/bitcoind.service\n\
+            \           └─1765 /usr/local/bin/bitcoind -daemon -conf=/home/bitcoin/.bitcoin/bitcoin.conf\
+            \ -pid=/mnt/hdd/bitcoin/bitcoind.pid\n\nSep 14 11:16:50 raspberrypi systemd[1]:\
+            \ Starting Bitcoin daemon...\nSep 14 11:16:51 raspberrypi systemd[1]:\
+            \ Started Bitcoin daemon.\n\n*** LAST BLOCKCHAIN ERROR LOGS ***\nsudo\
+            \ journalctl -u bitcoind -b --no-pager -n8\n-- Logs begin at Tue 2021-09-14\
+            \ 11:15:58 BST, end at Tue 2021-09-14 15:27:35 BST. --\nSep 14 11:16:50\
+            \ raspberrypi systemd[1]: Starting Bitcoin daemon...\nSep 14 11:16:51\
+            \ raspberrypi systemd[1]: Started Bitcoin daemon.\n\n*** LAST BLOCKCHAIN\
+            \ 20 INFO LOGS ***\nsudo tail -n 20 /mnt/hdd/bitcoin/debug.log\n2021-09-14T14:26:27Z\
+            \ Rolling forward 00000000000000000082dcdfb99c8b663828fd40fd68f343a17f766e1dee9bdc\
+            \ (499641)\n2021-09-14T14:26:30Z Rolling forward 0000000000000000003c2cc296d753717135a38cfea6bc3ddba640aac063fb3b\
+            \ (499642)\n2021-09-14T14:26:34Z Rolling forward 00000000000000000005869d321a8f2046d1e47f55b97920c9e4bb8a971db40b\
+            \ (499643)\n2021-09-14T14:26:37Z Rolling forward 0000000000000000002d429f39afec70c938e888c3417d690bbc85e83529991c\
+            \ (499644)\n2021-09-14T14:26:40Z Rolling forward 00000000000000000024c0bdbec66a889778c00bc69be0a96cbbd98b75c3ce09\
+            \ (499645)\n2021-09-14T14:26:43Z Rolling forward 00000000000000000082756af6724e3200ea9089cb4244cb2d94c83c3cd137d7\
+            \ (499646)\n2021-09-14T14:26:47Z Rolling forward 0000000000000000007f3bf2c37dc14630153b93bc2c34542deadb34a5eb201f\
+            \ (499647)\n2021-09-14T14:26:51Z Rolling forward 0000000000000000003b9296ea38abd68e97beb0c5ed56a8255e6b379a02032b\
+            \ (499648)\n2021-09-14T14:26:54Z Rolling forward 000000000000000000146931cda4713b5ded152c9ae57effe37f216d5a5f31b6\
+            \ (499649)\n2021-09-14T14:26:57Z Rolling forward 000000000000000000684318d6fc7266f8eb5dc349a170413a0c0ce2334da08f\
+            \ (499650)\n2021-09-14T14:27:00Z Rolling forward 000000000000000000846d905295c15c98f9dc8c8f3ab44bbb997cca9a8e4c83\
+            \ (499651)\n2021-09-14T14:27:04Z Rolling forward 00000000000000000082bfa88de1c4e6501462e231f0aa54f552f36bdf34fdd3\
+            \ (499652)\n2021-09-14T14:27:08Z Rolling forward 000000000000000000acce35f2b4ba5256f016da6024abb09ad60b6dcbd0ed83\
+            \ (499653)\n2021-09-14T14:27:11Z Rolling forward 000000000000000000ae0edf99df2db7e05a0f18e3e5a3e0dfc67013dadc526f\
+            \ (499654)\n2021-09-14T14:27:14Z Rolling forward 00000000000000000087cec98103a704a4594831e8173fa3c916b3c537456ab7\
+            \ (499655)\n2021-09-14T14:27:17Z Rolling forward 000000000000000000102d751e4c7e2de8f12e04cd4b44fe8179d492b29ea0e2\
+            \ (499656)\n2021-09-14T14:27:21Z Rolling forward 0000000000000000001a98320ee19986cfb19f30bb1d1deb0cfc21ed9fa3c7ae\
+            \ (499657)\n2021-09-14T14:27:24Z Rolling forward 0000000000000000005ad979367405af6ad75465a8900089cb3bd7b53ff4dc9d\
+            \ (499658)\n2021-09-14T14:27:28Z Rolling forward 0000000000000000005bd3de0386b9c24f92e363a04da33b6b6ac7450997f4aa\
+            \ (499659)\n2021-09-14T14:27:32Z Rolling forward 0000000000000000009fd25eaf6245cd8a0a8869bbe28145f39e4de14dd62825\
+            \ (499660)\n\n*** LND SYSTEMD STATUS ***\n● lnd.service - LND Lightning\
+            \ Daemon\n   Loaded: loaded (/etc/systemd/system/lnd.service; enabled;\
+            \ vendor preset: enabled)\n   Active: active (running) since Tue 2021-09-14\
+            \ 11:20:13 BST; 4h 7min ago\n  Process: 7000 ExecStartPre=/home/admin/config.scripts/blitz.systemd.sh\
+            \ log lightning STARTED (code=exited, status=0/SUCCESS)\n Main PID: 7002\
+            \ (lnd)\n    Tasks: 10 (limit: 4533)\n   CGroup: /system.slice/lnd.service\n\
+            \           └─7002 /usr/local/bin/lnd --tor.active --tor.streamisolation\
+            \ --tor.v3 --tor.socks=9070 --tor.control=9071 --listen=127.0.0.1:9735\n\
+            \nSep 14 11:20:13 raspberrypi systemd[1]: Starting LND Lightning Daemon...\n\
+            Sep 14 11:20:13 raspberrypi systemd[1]: Started LND Lightning Daemon.\n\
+            \n*** LAST LND ERROR LOGS ***\nsudo journalctl -u lnd -b --no-pager -n12\n\
+            -- Logs begin at Tue 2021-09-14 11:15:58 BST, end at Tue 2021-09-14 15:27:35\
+            \ BST. --\nSep 14 11:16:51 raspberrypi systemd[1]: Starting LND Lightning\
+            \ Daemon...\nSep 14 11:16:51 raspberrypi systemd[1]: Started LND Lightning\
+            \ Daemon.\nSep 14 11:19:13 raspberrypi lnd[1772]: unable to create chain\
+            \ control: unable to connect to bitcoind: -28: Loading block index...\n\
+            Sep 14 11:19:13 raspberrypi systemd[1]: lnd.service: Main process exited,\
+            \ code=exited, status=1/FAILURE\nSep 14 11:19:13 raspberrypi systemd[1]:\
+            \ lnd.service: Failed with result 'exit-code'.\nSep 14 11:20:13 raspberrypi\
+            \ systemd[1]: lnd.service: Service RestartSec=1min expired, scheduling\
+            \ restart.\nSep 14 11:20:13 raspberrypi systemd[1]: lnd.service: Scheduled\
+            \ restart job, restart counter is at 1.\nSep 14 11:20:13 raspberrypi systemd[1]:\
+            \ Stopped LND Lightning Daemon.\nSep 14 11:20:13 raspberrypi systemd[1]:\
+            \ Starting LND Lightning Daemon...\nSep 14 11:20:13 raspberrypi systemd[1]:\
+            \ Started LND Lightning Daemon.\n\n*** LAST 30 LND INFO LOGS ***\nsudo\
+            \ tail -n 30 /mnt/hdd/lnd/logs/bitcoin/mainnet/lnd.log\n2021-09-14 11:16:51.708\
+            \ [INF] LTND: Version: 0.12.1-beta commit=v0.12.1-beta, build=production,\
+            \ logging=default, debuglevel=debug\n2021-09-14 11:16:51.709 [INF] LTND:\
+            \ Active chain: Bitcoin (network=mainnet)\n2021-09-14 11:16:51.709 [INF]\
+            \ LTND: Opening the main database, this might take a few minutes...\n\
+            2021-09-14 11:16:51.709 [INF] LTND: Opening bbolt database, sync_freelist=true,\
+            \ auto_compact=false\n2021-09-14 11:16:51.724 [INF] CHDB: Checking for\
+            \ schema update: latest_version=20, db_version=20\n2021-09-14 11:16:51.724\
+            \ [INF] LTND: Database now open (time_to_open=15.109685ms)!\n2021-09-14\
+            \ 11:16:51.763 [INF] RPCS: Password RPC server listening on 0.0.0.0:10009\n\
+            2021-09-14 11:16:51.769 [INF] RPCS: Password gRPC proxy started at 0.0.0.0:8080\n\
+            2021-09-14 11:16:51.769 [INF] LTND: Waiting for wallet encryption password.\
+            \ Use `lncli create` to create a wallet, `lncli unlock` to unlock an existing\
+            \ wallet, or `lncli changepassword` to change the password of an existing\
+            \ wallet and unlock it.\n2021-09-14 11:19:12.895 [INF] LNWL: Opened wallet\n\
+            2021-09-14 11:19:13.126 [INF] CHRE: Primary chain is set to: bitcoin\n\
+            2021-09-14 11:19:13.257 [ERR] LTND: unable to create chain control: unable\
+            \ to connect to bitcoind: -28: Loading block index...\n2021-09-14 11:19:13.257\
+            \ [INF] LTND: Shutdown complete2021-09-14 11:20:14.120 [INF] LTND: Version:\
+            \ 0.12.1-beta commit=v0.12.1-beta, build=production, logging=default,\
+            \ debuglevel=debug\n2021-09-14 11:20:14.121 [INF] LTND: Active chain:\
+            \ Bitcoin (network=mainnet)\n2021-09-14 11:20:14.121 [INF] LTND: Opening\
+            \ the main database, this might take a few minutes...\n2021-09-14 11:20:14.121\
+            \ [INF] LTND: Opening bbolt database, sync_freelist=true, auto_compact=false\n\
+            2021-09-14 11:20:14.133 [INF] CHDB: Checking for schema update: latest_version=20,\
+            \ db_version=20\n2021-09-14 11:20:14.133 [INF] LTND: Database now open\
+            \ (time_to_open=11.654861ms)!\n2021-09-14 11:20:14.172 [INF] RPCS: Password\
+            \ RPC server listening on 0.0.0.0:10009\n2021-09-14 11:20:14.177 [INF]\
+            \ RPCS: Password gRPC proxy started at 0.0.0.0:8080\n2021-09-14 11:20:14.177\
+            \ [INF] LTND: Waiting for wallet encryption password. Use `lncli create`\
+            \ to create a wallet, `lncli unlock` to unlock an existing wallet, or\
+            \ `lncli changepassword` to change the password of an existing wallet\
+            \ and unlock it.\n\n*** NGINX SYSTEMD STATUS ***\n● nginx.service - A\
+            \ high performance web server and a reverse proxy server\n   Loaded: loaded\
+            \ (/lib/systemd/system/nginx.service; enabled; vendor preset: enabled)\n\
+            \  Drop-In: /etc/systemd/system/nginx.service.d\n           └─raspiblitz.conf\n\
+            \   Active: active (running) since Tue 2021-09-14 11:16:37 BST; 4h 10min\
+            \ ago\n     Docs: man:nginx(8)\n Main PID: 905 (nginx)\n    Tasks: 5 (limit:\
+            \ 4533)\n   CGroup: /system.slice/nginx.service\n           ├─905 nginx:\
+            \ master process /usr/sbin/nginx -g daemon on; master_process on;\n  \
+            \         ├─911 nginx: worker process\n           ├─913 nginx: worker\
+            \ process\n           ├─914 nginx: worker process\n           └─915 nginx:\
+            \ worker process\n\nSep 14 11:16:36 raspberrypi systemd[1]: Starting A\
+            \ high performance web server and a reverse proxy server...\nSep 14 11:16:37\
+            \ raspberrypi systemd[1]: Started A high performance web server and a\
+            \ reverse proxy server.\n\n*** LAST NGINX LOGS ***\nsudo journalctl -u\
+            \ nginx -b --no-pager -n20\n-- Logs begin at Tue 2021-09-14 11:15:58 BST,\
+            \ end at Tue 2021-09-14 15:27:35 BST. --\nSep 14 11:16:36 raspberrypi\
+            \ systemd[1]: Starting A high performance web server and a reverse proxy\
+            \ server...\nSep 14 11:16:37 raspberrypi systemd[1]: Started A high performance\
+            \ web server and a reverse proxy server.\n--> CHECK CONFIG: sudo nginx\
+            \ -t\n\n\n*** LAST 20 TOUCHSCREEN LOGS ***\nsudo tail -n 20 /home/pi/.cache/lxsession/LXDE-pi/run.log\n\
+            Playing WAVE '/usr/share/piwiz/srprompt.wav' : Signed 16 bit Little Endian,\
+            \ Rate 22050 Hz, Mono\nPlaying WAVE '/usr/share/piwiz/srprompt.wav' :\
+            \ Signed 16 bit Little Endian, Rate 22050 Hz, Mono\n** Message: 01:44:02.973:\
+            \ wlan0: Received scan results\nPlaying WAVE '/usr/share/piwiz/srprompt.wav'\
+            \ : Signed 16 bit Little Endian, Rate 22050 Hz, Mono\nPlaying WAVE '/usr/share/piwiz/srprompt.wav'\
+            \ : Signed 16 bit Little Endian, Rate 22050 Hz, Mono\nPlaying WAVE '/usr/share/piwiz/srprompt.wav'\
+            \ : Signed 16 bit Little Endian, Rate 22050 Hz, Mono\nPlaying WAVE '/usr/share/piwiz/srprompt.wav'\
+            \ : Signed 16 bit Little Endian, Rate 22050 Hz, Mono\n** Message: 01:45:03.021:\
+            \ wlan0: Received scan results\nPlaying WAVE '/usr/share/piwiz/srprompt.wav'\
+            \ : Signed 16 bit Little Endian, Rate 22050 Hz, Mono\nPlaying WAVE '/usr/share/piwiz/srprompt.wav'\
+            \ : Signed 16 bit Little Endian, Rate 22050 Hz, Mono\nPlaying WAVE '/usr/share/piwiz/srprompt.wav'\
+            \ : Signed 16 bit Little Endian, Rate 22050 Hz, Mono\nPlaying WAVE '/usr/share/piwiz/srprompt.wav'\
+            \ : Signed 16 bit Little Endian, Rate 22050 Hz, Mono\n** Message: 01:46:02.982:\
+            \ wlan0: Received scan results\nPlaying WAVE '/usr/share/piwiz/srprompt.wav'\
+            \ : Signed 16 bit Little Endian, Rate 22050 Hz, Mono\nPlaying WAVE '/usr/share/piwiz/srprompt.wav'\
+            \ : Signed 16 bit Little Endian, Rate 22050 Hz, Mono\nPlaying WAVE '/usr/share/piwiz/srprompt.wav'\
+            \ : Signed 16 bit Little Endian, Rate 22050 Hz, Mono\nPlaying WAVE '/usr/share/piwiz/srprompt.wav'\
+            \ : Signed 16 bit Little Endian, Rate 22050 Hz, Mono\n** Message: 01:47:02.989:\
+            \ wlan0: Received scan results\nPlaying WAVE '/usr/share/piwiz/srprompt.wav'\
+            \ : Signed 16 bit Little Endian, Rate 22050 Hz, Mono\nPlaying WAVE '/usr/share/piwiz/srprompt.wav'\
+            \ : Signed 16 bit Little Endian, Rate 22050 Hz, Mono\n\n\n*** LAST 20\
+            \ LOOP LOGS ***\nsudo journalctl -u loopd -b --no-pager -n20\n-- Logs\
+            \ begin at Tue 2021-09-14 11:15:58 BST, end at Tue 2021-09-14 15:27:35\
+            \ BST. --\n-- No entries --\n\n- RTL is OFF by config\n\n*** LAST 20 ElectRS\
+            \ LOGS ***\nsudo journalctl -u electrs -b --no-pager -n20\n-- Logs begin\
+            \ at Tue 2021-09-14 11:15:58 BST, end at Tue 2021-09-14 15:27:35 BST.\
+            \ --\n-- No entries --\n\n*** ElectRS Status ***\n##### STATUS ELECTRS\
+            \ SERVICE\nconfigured=0\nserviceInstalled=0\ninfoSync='Service not installed'\n\
+            serviceRunning=0\ntipSynced=0\ninitialSynced=0\nelectrumResponding=0\n\
+            infoSync='Not running - check: sudo journalctl -u electrs'\n\n\n*** LAST\
+            \ 20 LIT LOGS ***\nsudo journalctl -u litd -b --no-pager -n20\n-- Logs\
+            \ begin at Tue 2021-09-14 11:15:58 BST, end at Tue 2021-09-14 15:27:36\
+            \ BST. --\n-- No entries --\n\n\n*** LAST 20 BTCPayServer LOGS ***\nsudo\
+            \ journalctl -u btcpayserver -b --no-pager -n20\n-- Logs begin at Tue\
+            \ 2021-09-14 11:15:58 BST, end at Tue 2021-09-14 15:27:36 BST. --\n--\
+            \ No entries --\n\n\n*** LAST 20 LNbits LOGS ***\nsudo journalctl -u lnbits\
+            \ -b --no-pager -n20\n-- Logs begin at Tue 2021-09-14 11:15:58 BST, end\
+            \ at Tue 2021-09-14 15:27:36 BST. --\n-- No entries --\n\n\n*** LAST 20\
+            \ Thunderhub LOGS ***\nsudo journalctl -u thunderhub -b --no-pager -n20\n\
+            -- Logs begin at Tue 2021-09-14 11:15:58 BST, end at Tue 2021-09-14 15:27:36\
+            \ BST. --\n-- No entries --\n\n\n*** LAST 20 SPECTER LOGS ***\nsudo journalctl\
+            \ -u cryptoadvance-specter -b --no-pager -n20\n-- Logs begin at Tue 2021-09-14\
+            \ 11:15:58 BST, end at Tue 2021-09-14 15:27:36 BST. --\n-- No entries\
+            \ --\n\n\n*** LAST 20 SPHINX LOGS ***\nsudo journalctl -u sphinxrelay\
+            \ -b --no-pager -n20\n-- Logs begin at Tue 2021-09-14 11:15:58 BST, end\
+            \ at Tue 2021-09-14 15:27:36 BST. --\n-- No entries --\n\n\n*** MOUNTED\
+            \ DRIVES ***\nFilesystem     Type      Size  Used Avail Use% Mounted on\n\
+            /dev/root      ext4       29G  3.8G   25G  14% /\ndevtmpfs       devtmpfs\
+            \  1.9G     0  1.9G   0% /dev\ntmpfs          tmpfs     1.9G     0  1.9G\
+            \   0% /dev/shm\ntmpfs          tmpfs     1.9G   33M  1.9G   2% /run\n\
+            tmpfs          tmpfs     5.0M     0  5.0M   0% /run/lock\ntmpfs      \
+            \    tmpfs     1.9G     0  1.9G   0% /sys/fs/cgroup\ntmpfs          tmpfs\
+            \      32M     0   32M   0% /var/cache/raspiblitz\n/dev/mmcblk0p1 vfat\
+            \      253M   30M  223M  12% /boot\n/dev/sda1      ext4      916G  170G\
+            \  700G  20% /mnt/hdd\ntmpfs          tmpfs     385M     0  385M   0%\
+            \ /run/user/1000\ntmpfs          tmpfs     385M     0  385M   0% /run/user/1001\n\
+            \n\n*** DATADRIVE ***\n# RASPIBLITZ DATA DRIVE Status\n\n# BASICS\nisMounted=1\n\
+            isBTRFS=0\nhddRaspiData=1\nisSSD=1\ndatadisk='sda'\ndatapartition='sda1'\n\
+            hddBlocksBitcoin=1\nhddBlocksLitecoin=0\nhddBytes=1000141693440\nhddGigaBytes=931\n\
+            hddUsedInfo='170G (20%)'\nhddDataFreeKB=733759240\nhddAdapterUSB=''\n\
+            hddAdapterUSAP=0\n\n# RAID\nisRaid=0\nraidCandidates=0\n\n# SWAP\nisSwapExternal=1\n\
+            SwapExternalPath='/mnt/hdd/swapfile'\n\n\n*** NETWORK ***\nlocalip=192.168.0.103\n\
+            dhcp=1\nnetwork_device=eth0\n\n*** HARDWARE TEST RESULTS ***\nUndervoltageReports\
+            \ in Logs: 0\n\n*** SYSTEM STATUS (can take some seconds to gather) ***\n\
+            localIP='192.168.0.102'\ntempCelsius='63.2'\nuptime=15042\nupsStatus='OFF'\n\
+            startcountBlockchain=1\nbitcoinActive=1\nbitcoinErrorShort='Loading block\
+            \ index'\nbitcoinErrorFull='error code: -28 error message: Loading block\
+            \ index...'\nstartcountLightning=2\nlndActive=1\nlndRPCReady=0\nwalletOpened=0\n\
+            walletReady=0\nwalletLocked=1\nlndRPCReady=0\nblitzTUIActive=0\nblitzTUIRestarts=0\n\
+            scriptRuntime=0\n\n*** OPTION: SHARE THIS DEBUG OUTPUT ***\nAn easy way\
+            \ to share this debug output on GitHub or on a support chat\nuse the following\
+            \ command and share the resulting link:\n/home/admin/XXdebugLogs.sh |\
+            \ nc termbin.com 9999\n```\n"
+      security:
+      - JWTBearer: []
+      summary: Get raw system logs as a text string.
+      tags:
+      - System
+  /system/hardware-info-sub:
+    get:
+      operationId: system_hardware_info_sub_system_hardware_info_sub_get
+      responses:
+        "200":
+          content:
+            application/json:
+              schema: {}
+          description: "Yields a JSON string with hardware information every 120.5\
+            \ seconds:\n\n```JSON\n{\n  \"cpu_overall_percent\": 15.8,\n  \"cpu_per_cpu_percent\"\
+            : [\n    11.8,\n    6.1,\n    12.5\n  ],\n  \"vram_total_bytes\": 25134919680,\n\
+            \  \"vram_available_bytes\": 17240051712,\n  \"vram_used_bytes\": 6044856320,\n\
+            \  \"vram_usage_percent\": 31.4,\n  \"swap_ram_total_bytes\": 2147479552,\n\
+            \  \"swap_used_bytes\": 0,\n  \"swap_usage_bytes\": 0,\n  \"temperatures_celsius\"\
+            : {\n    \"coretemp\": [\n      [\n        \"Core 1\",\n        51,\n\
+            \        84,\n        100\n      ],\n      [\n        \"Core 2\",\n  \
+            \      53,\n        84,\n        100\n      ],\n      [\n        \"Core\
+            \ 3\",\n        50,\n        84,\n        100\n      ]\n    ]\n  },\n\
+            \  \"boot_time_timestamp\": 1623486468,\n  \"disk_io_read_count\": 254574,\n\
+            \  \"disk_io_write_count\": 133353,\n  \"disk_io_read_bytes\": 5306839040,\n\
+            \  \"disk_io_write_bytes\": 5593076736,\n  \"disks\": [\n    {\n     \
+            \ \"device\": \"/dev/sda1\",\n      \"mountpoint\": \"/boot/efi\",\n \
+            \     \"filesystem_type\": \"vfat\",\n      \"partition_total_bytes\"\
+            : 535805952,\n      \"partition_used_bytes\": 8228864,\n      \"partition_free_bytes\"\
+            : 527577088,\n      \"partition_percent\": 1.5\n    },\n    {\n      \"\
+            device\": \"/dev/sda2\",\n      \"mountpoint\": \"/\",\n      \"filesystem_type\"\
+            : \"ext4\",\n      \"partition_total_bytes\": 250438021120,\n      \"\
+            partition_used_bytes\": 177157742592,\n      \"partition_free_bytes\"\
+            : 60487389184,\n      \"partition_percent\": 74.5\n    }\n  ],\n  \"networks\"\
+            : [\n    {\n      \"interface_name\": \"lo\",\n      \"address\": \"127.0.0.1\"\
+            ,\n      \"mac_address\": \"00:00:00:00:00:00\"\n    },\n    {\n     \
+            \ \"interface_name\": \"enp4s0\",\n      \"address\": \"192.168.1.23\"\
+            ,\n      \"mac_address\": \"35:a3:5c:6a:4a:f0\"\n    }\n  ],\n  \"networks_bytes_sent\"\
+            : 137088249,\n  \"networks_bytes_received\": 1603400654\n}\n```\n"
+      security:
+      - JWTBearer: []
+      summary: Subscribe to hardware status information.
+      tags:
+      - System
+  /system/reboot:
+    post:
+      description: "Attempts to reboot the system.\n    Will send a `system_reboot_initiated`\
+        \ SSE message immediately to\n    all connected clients.\n    "
+      operationId: system_reboot_system_reboot_post
+      responses:
+        "200":
+          content:
+            application/json:
+              schema: {}
+          description: "True if successful. False on failure.\n    A failure will\
+            \ also send an error message with id `system_reboot_error`\n    to all\
+            \ connected clients.\n    "
+      security:
+      - JWTBearer: []
+      summary: Reboots the system
+      tags:
+      - System
+  /system/shutdown:
+    post:
+      description: "Attempts to shutdown the system.\n    Will send a `system_shutdown_initiated`\
+        \ SSE message immediately to all\n    connected clients.\n    "
+      operationId: system_shutdown_system_shutdown_post
+      responses:
+        "200":
+          content:
+            application/json:
+              schema: {}
+          description: "True if successful. False on failure.\n    A failure will\
+            \ also send an error message with id system_shutdown_error\n    to all\
+            \ connected clients.\n    "
+      security:
+      - JWTBearer: []
+      summary: Shuts the system down
+      tags:
+      - System
+  /setup/status:
+    get:
+      operationId: get_status_setup_status_get
+      responses:
+        "200":
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+      summary: Get Status
+      tags:
+      - Setup
+  /setup/setup-start-info:
+    get:
+      operationId: setup_start_info_setup_setup_start_info_get
+      responses:
+        "200":
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+      summary: Setup Start Info
+      tags:
+      - Setup
+  /setup/setup-start-done:
+    post:
+      operationId: setup_start_done_setup_setup_start_done_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StartDoneData'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Setup Start Done
+      tags:
+      - Setup
+  /setup/setup-final-info:
+    get:
+      operationId: setup_final_info_setup_setup_final_info_get
+      responses:
+        "200":
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+      security:
+      - JWTBearer: []
+      summary: Setup Final Info
+      tags:
+      - Setup
+  /setup/setup-final-done:
+    post:
+      operationId: setup_final_done_setup_setup_final_done_post
+      responses:
+        "200":
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+      security:
+      - JWTBearer: []
+      summary: Setup Final Done
+      tags:
+      - Setup
+  /setup/shutdown:
+    get:
+      operationId: get_shutdown_setup_shutdown_get
+      responses:
+        "200":
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+      summary: Get Shutdown
+      tags:
+      - Setup
+  /setup/setup-sync-info:
+    post:
+      operationId: setup_sync_info_setup_setup_sync_info_post
+      responses:
+        "200":
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+      security:
+      - JWTBearer: []
+      summary: Setup Sync Info
+      tags:
+      - Setup
+components:
+  schemas:
+    AMP:
+      properties:
+        root_share:
+          title: Root Share
+          type: string
+        set_id:
+          title: Set Id
+          type: string
+        child_index:
+          title: Child Index
+          type: integer
+        hash:
+          title: Hash
+          type: string
+        preimage:
+          title: Preimage
+          type: string
+      required:
+      - child_index
+      - hash
+      - preimage
+      - root_share
+      - set_id
+      title: AMP
+      type: object
+    AMPRecord:
+      example:
+        child_index: 1
+        root_share: root_share
+        set_id: set_id
+      properties:
+        root_share:
+          title: Root Share
+          type: string
+        set_id:
+          title: Set Id
+          type: string
+        child_index:
+          title: Child Index
+          type: integer
+      required:
+      - child_index
+      - root_share
+      - set_id
+      title: AMPRecord
+      type: object
+    APIPlatform:
+      description: An enumeration.
+      enum:
+      - raspiblitz
+      - native_python
+      - unknown
+      title: APIPlatform
+      type: string
+    Bip9Data:
+      properties:
+        status:
+          description: "One of \"defined\", \"started\", \"locked_in\", \"active\"\
+            , \"failed\" "
+          title: Status
+          type: string
+        bit:
+          description: the bit(0-28) in the block version field used to signal this
+            softfork(only for `started` status)
+          title: Bit
+          type: integer
+        start_time:
+          description: The minimum median time past of a block at which the bit gains
+            its meaning
+          title: Start Time
+          type: integer
+        timeout:
+          description: The median time past of a block at which the deployment is
+            considered failed if not yet locked in
+          title: Timeout
+          type: integer
+        since:
+          description: Height of the first block to which the status applies
+          title: Since
+          type: integer
+        min_activation_height:
+          description: Minimum height of blocks for which the rules may be enforced
+          title: Min Activation Height
+          type: integer
+        statistics:
+          $ref: '#/components/schemas/Statistics'
+        height:
+          description: "Height of the first block which the rules are or will be enforced(only\
+            \ for `buried` type, or `bip9` type with `active` status)"
+          title: Height
+          type: integer
+        active:
+          description: True if the rules are enforced for the mempool and the next
+            block
+          title: Active
+          type: boolean
+      required:
+      - min_activation_height
+      - since
+      - start_time
+      - status
+      - timeout
+      title: Bip9Data
+      type: object
+    Bip9Statistics:
+      properties:
+        period:
+          description: The length in blocks of the BIP9 signalling period
+          title: Period
+          type: integer
+        threshold:
+          description: The number of blocks with the version bit set required to activate
+            the feature
+          title: Threshold
+          type: integer
+        elapsed:
+          description: The number of blocks elapsed since the beginning of the current
+            period
+          title: Elapsed
+          type: integer
+        count:
+          description: The number of blocks with the version bit set in the current
+            period
+          title: Count
+          type: integer
+        possible:
+          description: False if there are not enough blocks left in this period to
+            pass activation threshold
+          title: Possible
+          type: boolean
+      required:
+      - count
+      - elapsed
+      - period
+      - possible
+      - threshold
+      title: Bip9Statistics
+      type: object
+    BlockchainInfo:
+      example:
+        headers: 6
+        chain: chain
+        size_on_disk: 2
+        mediantime: 5
+        blocks: 0
+        pruned: true
+        warnings: warnings
+        prune_target_size: 9
+        difficulty: 1
+        verification_progress: 5.637376656633329
+        chainwork: chainwork
+        automatic_pruning: true
+        softforks:
+        - name: name
+          active: true
+          type: type
+          bip9: null
+          height: 3
+        - name: name
+          active: true
+          type: type
+          bip9: null
+          height: 3
+        best_block_hash: best_block_hash
+        prune_height: 7
+        initial_block_download: true
+      properties:
+        chain:
+          description: "Current network name(main, test, regtest)"
+          title: Chain
+          type: string
+        blocks:
+          description: The height of the most-work fully-validated chain. The genesis
+            block has height 0
+          title: Blocks
+          type: integer
+        headers:
+          description: The current number of headers we have validated
+          title: Headers
+          type: integer
+        best_block_hash:
+          description: The hash of the currently best block
+          title: Best Block Hash
+          type: string
+        difficulty:
+          description: The current difficulty
+          title: Difficulty
+          type: integer
+        mediantime:
+          description: Median time for the current best block
+          title: Mediantime
+          type: integer
+        verification_progress:
+          description: "Estimate of verification progress[0..1]"
+          title: Verification Progress
+          type: number
+        initial_block_download:
+          description: Estimate of whether this node is in Initial Block Download
+            mode
+          title: Initial Block Download
+          type: boolean
+        chainwork:
+          description: "total amount of work in active chain, in hexadecimal"
+          title: Chainwork
+          type: string
+        size_on_disk:
+          description: The estimated size of the block and undo files on disk
+          title: Size On Disk
+          type: integer
+        pruned:
+          description: If the blocks are subject to pruning
+          title: Pruned
+          type: boolean
+        prune_height:
+          description: Lowest-height complete block stored(only present if pruning
+            is enabled)
+          title: Prune Height
+          type: integer
+        automatic_pruning:
+          description: Whether automatic pruning is enabled(only present if pruning
+            is enabled)
+          title: Automatic Pruning
+          type: boolean
+        prune_target_size:
+          description: The target size used by pruning(only present if automatic pruning
+            is enabled)
+          title: Prune Target Size
+          type: integer
+        warnings:
+          description: Any network and blockchain warnings
+          title: Warnings
+          type: string
+        softforks:
+          description: Status of softforks
+          items:
+            $ref: '#/components/schemas/SoftFork'
+          title: Softforks
+          type: array
+      required:
+      - best_block_hash
+      - blocks
+      - chain
+      - chainwork
+      - difficulty
+      - headers
+      - initial_block_download
+      - mediantime
+      - pruned
+      - size_on_disk
+      - softforks
+      - verification_progress
+      - warnings
+      title: BlockchainInfo
+      type: object
+    BtcInfo:
+      example:
+        difficulty: 5
+        headers: 6
+        verification_progress: 1.4658129805029452
+        size_on_disk: 5
+        subversion: subversion
+        blocks: 0
+        connections_out: 9
+        networks:
+        - proxy: proxy
+          limited: true
+          proxy_randomize_credentials: true
+          name: name
+          reachable: true
+        - proxy: proxy
+          limited: true
+          proxy_randomize_credentials: true
+          name: name
+          reachable: true
+        connections_in: 7
+        version: 2
+      properties:
+        blocks:
+          description: The height of the most-work fully-validated chain. The genesis
+            block has height 0
+          title: Blocks
+          type: integer
+        headers:
+          description: The current number of headers we have validated
+          title: Headers
+          type: integer
+        verification_progress:
+          description: "Estimate of verification progress[0..1]"
+          title: Verification Progress
+          type: number
+        difficulty:
+          description: The current difficulty
+          title: Difficulty
+          type: integer
+        size_on_disk:
+          description: The estimated size of the block and undo files on disk
+          title: Size On Disk
+          type: integer
+        networks:
+          default: []
+          description: "Which networks are in use (ipv4, ipv6 or onion)"
+          items:
+            $ref: '#/components/schemas/BtcNetwork'
+          title: Networks
+          type: array
+        version:
+          description: The bitcoin core server version
+          title: Version
+          type: integer
+        subversion:
+          description: The server subversion string
+          title: Subversion
+          type: string
+        connections_in:
+          description: The number of inbound connections
+          title: Connections In
+          type: integer
+        connections_out:
+          description: The number of outbound connections
+          title: Connections Out
+          type: integer
+      required:
+      - blocks
+      - connections_in
+      - connections_out
+      - difficulty
+      - headers
+      - size_on_disk
+      - subversion
+      - verification_progress
+      - version
+      title: BtcInfo
+      type: object
+    BtcLocalAddress:
+      example:
+        score: 2
+        address: address
+        port: 3
+      properties:
+        address:
+          description: Network address
+          title: Address
+          type: string
+        port:
+          description: Network port
+          title: Port
+          type: integer
+        score:
+          description: Relative score
+          title: Score
+          type: integer
+      required:
+      - address
+      - port
+      - score
+      title: BtcLocalAddress
+      type: object
+    BtcNetwork:
+      example:
+        proxy: proxy
+        limited: true
+        proxy_randomize_credentials: true
+        name: name
+        reachable: true
+      properties:
+        name:
+          description: "Which network is in use (ipv4, ipv6 or onion)"
+          title: Name
+          type: string
+        limited:
+          description: Is the network limited using - onlynet?
+          title: Limited
+          type: boolean
+        reachable:
+          description: Is the network reachable?
+          title: Reachable
+          type: boolean
+        proxy:
+          default: ""
+          description: "host:port of the proxy that is used for this network, or empty\
+            \ if none"
+          title: Proxy
+          type: string
+        proxy_randomize_credentials:
+          description: Whether randomized credentials are used
+          title: Proxy Randomize Credentials
+          type: boolean
+      required:
+      - limited
+      - name
+      - proxy_randomize_credentials
+      - reachable
+      title: BtcNetwork
+      type: object
+    Chain:
+      example:
+        chain: chain
+        network: network
+      properties:
+        chain:
+          title: Chain
+          type: string
+        network:
+          title: Network
+          type: string
+      required:
+      - chain
+      - network
+      title: Chain
+      type: object
+    Channel:
+      example:
+        balance_local: 0
+        balance_remote: 6
+        peer_alias: peer_alias
+        balance_capacity: 1
+        active: true
+        channel_id: channel_id
+        peer_publickey: peer_publickey
+      properties:
+        channel_id:
+          title: Channel Id
+          type: string
+        active:
+          title: Active
+          type: boolean
+        peer_publickey:
+          title: Peer Publickey
+          type: string
+        peer_alias:
+          title: Peer Alias
+          type: string
+        balance_local:
+          title: Balance Local
+          type: integer
+        balance_remote:
+          title: Balance Remote
+          type: integer
+        balance_capacity:
+          title: Balance Capacity
+          type: integer
+      title: Channel
+      type: object
+    ChannelUpdate:
+      example:
+        time_lock_delta: 6
+        base_fee: 6
+        chan_id: 9
+        channel_flags: 9
+        signature: signature
+        htlc_maximum_msat: 2
+        chain_hash: chain_hash
+        extra_opaque_data: extra_opaque_data
+        message_flags: 8
+        htlc_minimum_msat: 3
+        timestamp: 6
+        fee_rate: 1
+      properties:
+        signature:
+          title: Signature
+          type: string
+        chain_hash:
+          title: Chain Hash
+          type: string
+        chan_id:
+          title: Chan Id
+          type: integer
+        timestamp:
+          title: Timestamp
+          type: integer
+        message_flags:
+          title: Message Flags
+          type: integer
+        channel_flags:
+          title: Channel Flags
+          type: integer
+        time_lock_delta:
+          title: Time Lock Delta
+          type: integer
+        htlc_minimum_msat:
+          title: Htlc Minimum Msat
+          type: integer
+        base_fee:
+          title: Base Fee
+          type: integer
+        fee_rate:
+          title: Fee Rate
+          type: integer
+        htlc_maximum_msat:
+          title: Htlc Maximum Msat
+          type: integer
+        extra_opaque_data:
+          title: Extra Opaque Data
+          type: string
+      required:
+      - base_fee
+      - chain_hash
+      - chan_id
+      - channel_flags
+      - extra_opaque_data
+      - fee_rate
+      - htlc_maximum_msat
+      - htlc_minimum_msat
+      - message_flags
+      - signature
+      - time_lock_delta
+      - timestamp
+      title: ChannelUpdate
+      type: object
+    ConnectionInfo:
+      example:
+        lnd_readonly_macaroon: lnd_readonly_macaroon
+        lnd_rest_onion: lnd_rest_onion
+        cl_rest_onion: cl_rest_onion
+        lnd_invoice_macaroon: lnd_invoice_macaroon
+        lnd_btcpay_connection_string: lnd_btcpay_connection_string
+        cl_rest_zeus_connection_string: cl_rest_zeus_connection_string
+        cl_rest_macaroon: cl_rest_macaroon
+        lnd_admin_macaroon: lnd_admin_macaroon
+        lnd_tls_cert: lnd_tls_cert
+        lnd_zeus_connection_string: lnd_zeus_connection_string
+      properties:
+        lnd_admin_macaroon:
+          default: ""
+          description: lnd macaroon with admin rights in hexstring format
+          title: Lnd Admin Macaroon
+          type: string
+        lnd_invoice_macaroon:
+          default: ""
+          description: lnd macaroon that only creates invoices in hexstring format
+          title: Lnd Invoice Macaroon
+          type: string
+        lnd_readonly_macaroon:
+          default: ""
+          description: lnd macaroon with only read-only rights in hexstring format
+          title: Lnd Readonly Macaroon
+          type: string
+        lnd_tls_cert:
+          default: ""
+          description: lnd tls cert in hexstring format
+          title: Lnd Tls Cert
+          type: string
+        lnd_rest_onion:
+          default: ""
+          description: lnd rest api onion address
+          title: Lnd Rest Onion
+          type: string
+        lnd_btcpay_connection_string:
+          default: ""
+          description: connect BtcPay server locally to your lnd lightning node
+          title: Lnd Btcpay Connection String
+          type: string
+        lnd_zeus_connection_string:
+          default: ""
+          description: connect Zeus app to your lnd lightning node
+          title: Lnd Zeus Connection String
+          type: string
+        cl_rest_zeus_connection_string:
+          default: ""
+          description: connect Zeus app to your core lightning node over rest
+          title: Cl Rest Zeus Connection String
+          type: string
+        cl_rest_macaroon:
+          default: ""
+          description: core lightning rest macaroon
+          title: Cl Rest Macaroon
+          type: string
+        cl_rest_onion:
+          default: ""
+          description: core lightning rest onion address
+          title: Cl Rest Onion
+          type: string
+      title: ConnectionInfo
+      type: object
+    CustomRecordsEntry:
+      example:
+        value: value
+        key: 5
+      properties:
+        key:
+          title: Key
+          type: integer
+        value:
+          title: Value
+          type: string
+      required:
+      - key
+      - value
+      title: CustomRecordsEntry
+      type: object
+    Feature:
+      example:
+        is_required: true
+        is_known: true
+        name: name
+      properties:
+        name:
+          title: Name
+          type: string
+        is_required:
+          title: Is Required
+          type: boolean
+        is_known:
+          title: Is Known
+          type: boolean
+      required:
+      - name
+      title: Feature
+      type: object
+    FeaturesEntry:
+      example:
+        value:
+          is_required: true
+          is_known: true
+          name: name
+        key: 9
+      properties:
+        key:
+          title: Key
+          type: integer
+        value:
+          $ref: '#/components/schemas/Feature'
+      required:
+      - key
+      - value
+      title: FeaturesEntry
+      type: object
+    FeeEstimationMode:
+      description: An enumeration.
+      enum:
+      - conservative
+      - economical
+      title: FeeEstimationMode
+      type: string
+    FeeRevenue:
+      example:
+        total: 5
+        week: 6
+        month: 1
+        year: 5
+        day: 0
+      properties:
+        day:
+          description: Fee revenue earned in the last 24 hours
+          title: Day
+          type: integer
+        week:
+          description: Fee revenue earned in the last 7days
+          title: Week
+          type: integer
+        month:
+          description: Fee revenue earned in the last month
+          title: Month
+          type: integer
+        year:
+          description: Fee revenue earned in the last year. Might be null if not implemented
+            by backend.
+          title: Year
+          type: integer
+        total:
+          description: Fee revenue earned in the last year. Might be null if not implemented
+            by backend
+          title: Total
+          type: integer
+      required:
+      - day
+      - month
+      - week
+      title: FeeRevenue
+      type: object
+    GenericTx:
+      example:
+        amount: 6
+        time_stamp: 1
+        total_fees: 2
+        index: 0
+        comment: comment
+        num_confs: 0
+        id: id
+        block_height: 5
+        category: ""
+        type: ""
+        status: ""
+      properties:
+        index:
+          default: 0
+          description: The index of the transaction.
+          title: Index
+          type: integer
+        id:
+          description: |2
+
+            Unique identifier for this transaction.
+
+            Depending on the type of the transaction it will be different:
+            #### On-chain
+            The transaction hash
+
+            #### Lightning Invoice and Payment
+            The payment request
+          title: Id
+          type: string
+        category:
+          allOf:
+          - $ref: '#/components/schemas/TxCategory'
+          description: Whether this is an onchain (**onchain**) or lightning (**ln**)
+            transaction.
+        type:
+          allOf:
+          - $ref: '#/components/schemas/TxType'
+          description: Whether this is an outgoing (**send**) transaction or an incoming
+            (**receive**) transaction.
+        amount:
+          description: "\nThe value of the transaction, depending on the category\
+            \ in satoshis or millisatoshis.\n\n#### On-chain\nTransaction amount in\
+            \ satoshis\n\n#### Lightning Invoice\n* value in millisatoshis of the\
+            \ invoice if *unsettled*\n* amount in millisatoshis paid if invoice is\
+            \ *settled*\n\n#### Lightning Payment\n* amount sent in millisatoshis\n\
+            \n"
+          title: Amount
+          type: integer
+        time_stamp:
+          description: |2+
+
+            The unix timestamp in seconds for the transaction.
+
+            The timestamp can mean different things in different situations:
+
+            #### Lightning Invoice
+            * Creation date for in-flight or failed invoices
+            * Settle date for succeeded invoices
+
+            #### On-chain
+            * Creation date for transaction waiting in the mempool
+            * Timestamp of the block where this transaction is included
+
+            #### Lightning Payment
+
+          title: Time Stamp
+          type: integer
+        comment:
+          default: ""
+          description: Optional comment for this transaction
+          title: Comment
+          type: string
+        status:
+          allOf:
+          - $ref: '#/components/schemas/TxStatus'
+          description: "\nThe status of the transaction. Depending on the transaction\
+            \ category this can be different values:\n\nMay have different meanings\
+            \ in different situations:\n#### unknown\nAn unknown state was found.\n\
+            \n#### in_flight\n* A lightning payment is being sent\n* An invoice is\
+            \ waiting for the incoming payment\n* An on-chain transaction is waiting\
+            \ in the mempool\n\n#### succeeded\n* A lighting payment was successfully\
+            \ sent\n* An incoming payment was received for an invoice\n* An on-chain\
+            \ transaction was included in a block\n\n#### failed\n* A lightning payment\
+            \ attempt which could not be completed (no route found, insufficient funds,\
+            \ ...)\n* An invoice is expired or some other error happened\n"
+        block_height:
+          description: "Block height, if included in a block. Only applicable for\
+            \ category **onchain**."
+          title: Block Height
+          type: integer
+        num_confs:
+          description: Number of confirmations. Only applicable for category **onchain**.
+          minimum: 0.0
+          title: Num Confs
+          type: integer
+        total_fees:
+          description: Total fees paid for this transaction
+          title: Total Fees
+          type: integer
+      required:
+      - amount
+      - category
+      - id
+      - status
+      - time_stamp
+      - type
+      title: GenericTx
+      type: object
+    HTLCAttempt:
+      example:
+        route:
+          total_amt: 7
+          custom_records:
+          - value: value
+            key: 5
+          - value: value
+            key: 5
+          total_fees: 2
+          hops:
+          - chan_capacity: 3
+            chan_id: 9
+            fee_msat: 1
+            fee: 4
+            expiry: 7
+            amt_to_forward_msat: 1
+            tlv_payload: true
+            amt_to_forward: 2
+            pub_key: pub_key
+          - chan_capacity: 3
+            chan_id: 9
+            fee_msat: 1
+            fee: 4
+            expiry: 7
+            amt_to_forward_msat: 1
+            tlv_payload: true
+            amt_to_forward: 2
+            pub_key: pub_key
+          total_amt_msat: 6
+          mpp_record:
+            payment_addr: payment_addr
+            total_amt_msat: 7
+          total_fees_msat: 1
+          amp_record:
+            child_index: 1
+            root_share: root_share
+            set_id: set_id
+          total_time_lock: 5
+        failure:
+          htlc_msat: 6
+          code: 9
+          onion_sha_256: onion_sha_256
+          channel_update:
+            time_lock_delta: 6
+            base_fee: 6
+            chan_id: 9
+            channel_flags: 9
+            signature: signature
+            htlc_maximum_msat: 2
+            chain_hash: chain_hash
+            extra_opaque_data: extra_opaque_data
+            message_flags: 8
+            htlc_minimum_msat: 3
+            timestamp: 6
+            fee_rate: 1
+          cltv_expiry: 6
+          flags: 5
+          failure_source_index: 6
+          height: 3
+        preimage: preimage
+        resolve_time_ns: 5
+        attempt_id: 5
+        status: null
+        attempt_time_ns: 4
+      properties:
+        attempt_id:
+          title: Attempt Id
+          type: integer
+        status:
+          $ref: '#/components/schemas/HTLCStatus'
+        route:
+          $ref: '#/components/schemas/Route'
+        attempt_time_ns:
+          title: Attempt Time Ns
+          type: integer
+        resolve_time_ns:
+          title: Resolve Time Ns
+          type: integer
+        failure:
+          $ref: '#/components/schemas/HTLCAttemptFailure'
+        preimage:
+          title: Preimage
+          type: string
+      required:
+      - attempt_id
+      - attempt_time_ns
+      - failure
+      - preimage
+      - resolve_time_ns
+      - route
+      - status
+      title: HTLCAttempt
+      type: object
+    HTLCAttemptFailure:
+      example:
+        htlc_msat: 6
+        code: 9
+        onion_sha_256: onion_sha_256
+        channel_update:
+          time_lock_delta: 6
+          base_fee: 6
+          chan_id: 9
+          channel_flags: 9
+          signature: signature
+          htlc_maximum_msat: 2
+          chain_hash: chain_hash
+          extra_opaque_data: extra_opaque_data
+          message_flags: 8
+          htlc_minimum_msat: 3
+          timestamp: 6
+          fee_rate: 1
+        cltv_expiry: 6
+        flags: 5
+        failure_source_index: 6
+        height: 3
+      properties:
+        code:
+          title: Code
+          type: integer
+        channel_update:
+          $ref: '#/components/schemas/ChannelUpdate'
+        htlc_msat:
+          title: Htlc Msat
+          type: integer
+        onion_sha_256:
+          title: Onion Sha 256
+          type: string
+        cltv_expiry:
+          title: Cltv Expiry
+          type: integer
+        flags:
+          title: Flags
+          type: integer
+        failure_source_index:
+          title: Failure Source Index
+          type: integer
+        height:
+          title: Height
+          type: integer
+      required:
+      - channel_update
+      - cltv_expiry
+      - code
+      - failure_source_index
+      - flags
+      - height
+      - htlc_msat
+      - onion_sha_256
+      title: HTLCAttemptFailure
+      type: object
+    HTLCStatus:
+      description: An enumeration.
+      enum:
+      - in_flight
+      - succeeded
+      - failed
+      title: HTLCStatus
+      type: string
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          title: Detail
+          type: array
+      title: HTTPValidationError
+      type: object
+    Hop:
+      example:
+        chan_capacity: 3
+        chan_id: 9
+        fee_msat: 1
+        fee: 4
+        expiry: 7
+        amt_to_forward_msat: 1
+        tlv_payload: true
+        amt_to_forward: 2
+        pub_key: pub_key
+      properties:
+        chan_id:
+          title: Chan Id
+          type: integer
+        chan_capacity:
+          title: Chan Capacity
+          type: integer
+        amt_to_forward:
+          title: Amt To Forward
+          type: integer
+        fee:
+          title: Fee
+          type: integer
+        expiry:
+          title: Expiry
+          type: integer
+        amt_to_forward_msat:
+          title: Amt To Forward Msat
+          type: integer
+        fee_msat:
+          title: Fee Msat
+          type: integer
+        pub_key:
+          title: Pub Key
+          type: string
+        tlv_payload:
+          title: Tlv Payload
+          type: boolean
+      required:
+      - amt_to_forward
+      - amt_to_forward_msat
+      - chan_capacity
+      - chan_id
+      - expiry
+      - fee
+      - fee_msat
+      - pub_key
+      - tlv_payload
+      title: Hop
+      type: object
+    HopHint:
+      example:
+        fee_base_msat: 7
+        chan_id: chan_id
+        cltv_expiry_delta: 3
+        fee_proportional_millionths: 9
+        node_id: node_id
+      properties:
+        node_id:
+          description: The public key of the node at the start of the channel.
+          title: Node Id
+          type: string
+        chan_id:
+          description: The unique identifier of the channel.
+          title: Chan Id
+          type: string
+        fee_base_msat:
+          description: The base fee of the channel denominated in msat.
+          title: Fee Base Msat
+          type: integer
+        fee_proportional_millionths:
+          description: The fee rate of the channel for sending one satoshi across
+            it denominated in msat
+          title: Fee Proportional Millionths
+          type: integer
+        cltv_expiry_delta:
+          description: The time-lock delta of the channel.
+          title: Cltv Expiry Delta
+          type: integer
+      required:
+      - chan_id
+      - cltv_expiry_delta
+      - fee_base_msat
+      - fee_proportional_millionths
+      - node_id
+      title: HopHint
+      type: object
+    Invoice:
+      example:
+        is_amp: true
+        private: true
+        description_hash: description_hash
+        settle_date: 1
+        r_hash: r_hash
+        memo: memo
+        route_hints:
+        - hop_hints:
+          - fee_base_msat: 7
+            chan_id: chan_id
+            cltv_expiry_delta: 3
+            fee_proportional_millionths: 9
+            node_id: node_id
+          - fee_base_msat: 7
+            chan_id: chan_id
+            cltv_expiry_delta: 3
+            fee_proportional_millionths: 9
+            node_id: node_id
+        - hop_hints:
+          - fee_base_msat: 7
+            chan_id: chan_id
+            cltv_expiry_delta: 3
+            fee_proportional_millionths: 9
+            node_id: node_id
+          - fee_base_msat: 7
+            chan_id: chan_id
+            cltv_expiry_delta: 3
+            fee_proportional_millionths: 9
+            node_id: node_id
+        features:
+        - value:
+            is_required: true
+            is_known: true
+            name: name
+          key: 9
+        - value:
+            is_required: true
+            is_known: true
+            name: name
+          key: 9
+        payment_addr: payment_addr
+        payment_request: payment_request
+        cltv_expiry: 2
+        expiry: 5
+        amt_paid_msat: 7
+        state: ""
+        add_index: add_index
+        value_msat: 0
+        settle_index: 2
+        settled: false
+        expiry_date: 5
+        fallback_addr: fallback_addr
+        creation_date: 6
+        r_preimage: r_preimage
+        is_keysend: true
+        amt_paid_sat: 4
+        htlcs:
+        - htlc_index: 1
+          mpp_total_amt_msat: 9
+          chan_id: 1
+          custom_records:
+          - value: value
+            key: 5
+          - value: value
+            key: 5
+          amp: null
+          expiry_height: 4
+          resolve_time: 1
+          amt_msat: 1
+          accept_height: 6
+          state: ""
+          accept_time: 7
+        - htlc_index: 1
+          mpp_total_amt_msat: 9
+          chan_id: 1
+          custom_records:
+          - value: value
+            key: 5
+          - value: value
+            key: 5
+          amp: null
+          expiry_height: 4
+          resolve_time: 1
+          amt_msat: 1
+          accept_height: 6
+          state: ""
+          accept_time: 7
+      properties:
+        memo:
+          description: "Optional memo to attach along with the invoice. Used for record\
+            \ keeping purposes for the invoice's creator,\n        and will also be\
+            \ set in the description field of the encoded payment request if the description_hash\
+            \ field is not being used."
+          title: Memo
+          type: string
+        r_preimage:
+          description: The hex-encoded preimage(32 byte) which will allow settling
+            an incoming HTLC payable to this preimage.
+          title: R Preimage
+          type: string
+        r_hash:
+          description: The hash of the preimage.
+          title: R Hash
+          type: string
+        value_msat:
+          description: The value of this invoice in milli satoshis.
+          title: Value Msat
+          type: integer
+        settled:
+          default: false
+          description: Whether this invoice has been fulfilled
+          title: Settled
+          type: boolean
+        creation_date:
+          description: When this invoice was created. Not available with CLN.
+          title: Creation Date
+          type: integer
+        settle_date:
+          description: When this invoice was settled. Not available with pending invoices.
+          title: Settle Date
+          type: integer
+        expiry_date:
+          description: The time at which this invoice expires
+          title: Expiry Date
+          type: integer
+        payment_request:
+          description: "A bare-bones invoice for a payment within the\n    Lightning\
+            \ Network. With the details of the invoice, the sender has all the data\
+            \ necessary to\n    send a payment to the recipient.\n    "
+          title: Payment Request
+          type: string
+        description_hash:
+          description: "\n    Hash(SHA-256) of a description of the payment. Used\
+            \ if the description of payment(memo) is too\n    long to naturally fit\
+            \ within the description field of an encoded payment request.\n    "
+          title: Description Hash
+          type: string
+        expiry:
+          description: Payment request expiry time in seconds. Default is 3600 (1
+            hour).
+          title: Expiry
+          type: integer
+        fallback_addr:
+          description: Fallback on-chain address.
+          title: Fallback Addr
+          type: string
+        cltv_expiry:
+          description: Delta to use for the time-lock of the CLTV extended to the
+            final hop.
+          title: Cltv Expiry
+          type: integer
+        route_hints:
+          description: "\n    Route hints that can each be individually used to assist\
+            \ in reaching the invoice's destination.\n    "
+          items:
+            $ref: '#/components/schemas/RouteHint'
+          title: Route Hints
+          type: array
+        private:
+          description: Whether this invoice should include routing hints for private
+            channels.
+          title: Private
+          type: boolean
+        add_index:
+          description: "\nThe index of this invoice. Each newly created invoice will\
+            \ increment this index making it monotonically increasing.\nCLN and LND\
+            \ handle ids differently. LND will generate an auto incremented integer\
+            \ id, while CLN will use a user supplied string id.\nTo unify both, we\
+            \ auto generate an id for CLN and use the add_index for LND.\n\nFor `LND`\
+            \ this will be an `integer` in string form. This is auto generated by\
+            \ LND.\n\nFor `CLN` this will be a `string`. If the invoice was generated\
+            \ by BlitzAPI, this will be a\n[Firebase-like PushID](https://firebase.blog/posts/2015/02/the-2120-ways-to-ensure-unique_68).\n\
+            If generated by some other method, it'll be the string supplied by the\
+            \ user at the time of creation of the invoice.\n"
+          title: Add Index
+          type: string
+        settle_index:
+          description: "\n        The \"settle\" index of this invoice. Each newly\
+            \ settled invoice will  increment this index making it monotonically increasing.\n\
+            \    "
+          title: Settle Index
+          type: integer
+        amt_paid_sat:
+          description: "\n    The amount that was accepted for this invoice, in satoshis.\
+            \ This\n    will ONLY be set if this invoice has been settled. We provide\n\
+            \    this field as if the invoice was created with a zero value,\n   \
+            \ then we need to record what amount was ultimately accepted.\n    Additionally,\
+            \ it's possible that the sender paid MORE that\n    was specified in the\
+            \ original invoice. So we'll record that here as well.\n    "
+          title: Amt Paid Sat
+          type: integer
+        amt_paid_msat:
+          description: "\n    The amount that was accepted for this invoice, in millisatoshis.\n\
+            \    This will ONLY be set if this invoice has been settled. We\n    provide\
+            \ this field as if the invoice was created with a zero value,\n    then\
+            \ we need to record what amount was ultimately accepted. Additionally,\n\
+            \    it's possible that the sender paid MORE that was specified in the\n\
+            \    original invoice. So we'll record that here as well.\n    "
+          title: Amt Paid Msat
+          type: integer
+        state:
+          allOf:
+          - $ref: '#/components/schemas/InvoiceState'
+          description: The state the invoice is in.
+        htlcs:
+          description: "List of HTLCs paying to this invoice[EXPERIMENTAL]."
+          items:
+            $ref: '#/components/schemas/InvoiceHTLC'
+          title: Htlcs
+          type: array
+        features:
+          description: List of features advertised on the invoice.
+          items:
+            $ref: '#/components/schemas/FeaturesEntry'
+          title: Features
+          type: array
+        is_keysend:
+          description: "[LND only] Indicates if this invoice was a spontaneous payment\
+            \ that arrived via keysend[EXPERIMENTAL]."
+          title: Is Keysend
+          type: boolean
+        payment_addr:
+          description: " The payment address of this invoice. This value will be used\
+            \ in MPP payments,\n    and also for newer invoices that always require\
+            \ the MPP payload for added end-to-end security."
+          title: Payment Addr
+          type: string
+        is_amp:
+          description: Signals whether or not this is an AMP invoice.
+          title: Is Amp
+          type: boolean
+      required:
+      - add_index
+      - state
+      - value_msat
+      title: Invoice
+      type: object
+    InvoiceHTLC:
+      example:
+        htlc_index: 1
+        mpp_total_amt_msat: 9
+        chan_id: 1
+        custom_records:
+        - value: value
+          key: 5
+        - value: value
+          key: 5
+        amp: null
+        expiry_height: 4
+        resolve_time: 1
+        amt_msat: 1
+        accept_height: 6
+        state: ""
+        accept_time: 7
+      properties:
+        chan_id:
+          description: The channel ID over which the HTLC was received.
+          title: Chan Id
+          type: integer
+        htlc_index:
+          description: The index of the HTLC on the channel.
+          title: Htlc Index
+          type: integer
+        amt_msat:
+          description: The amount of the HTLC in msat.
+          title: Amt Msat
+          type: integer
+        accept_height:
+          description: The block height at which this HTLC was accepted.
+          title: Accept Height
+          type: integer
+        accept_time:
+          description: The time at which this HTLC was accepted.
+          title: Accept Time
+          type: integer
+        resolve_time:
+          description: The time at which this HTLC was resolved.
+          title: Resolve Time
+          type: integer
+        expiry_height:
+          description: The block height at which this HTLC expires.
+          title: Expiry Height
+          type: integer
+        state:
+          allOf:
+          - $ref: '#/components/schemas/InvoiceHTLCState'
+          description: The state of the HTLC.
+        custom_records:
+          default: []
+          description: Custom tlv records.
+          items:
+            $ref: '#/components/schemas/CustomRecordsEntry'
+          title: Custom Records
+          type: array
+        mpp_total_amt_msat:
+          description: The total amount of the mpp payment in msat.
+          title: Mpp Total Amt Msat
+          type: integer
+        amp:
+          $ref: '#/components/schemas/Amp'
+      required:
+      - accept_height
+      - accept_time
+      - amt_msat
+      - chan_id
+      - expiry_height
+      - htlc_index
+      - mpp_total_amt_msat
+      - resolve_time
+      - state
+      title: InvoiceHTLC
+      type: object
+    InvoiceHTLCState:
+      description: An enumeration.
+      enum:
+      - accepted
+      - settled
+      - canceled
+      title: InvoiceHTLCState
+      type: string
+    InvoiceState:
+      description: An enumeration.
+      enum:
+      - open
+      - settled
+      - canceled
+      - accepted
+      title: InvoiceState
+      type: string
+    LightningInfoLite:
+      example:
+        num_inactive_channels: 1
+        synced_to_chain: true
+        synced_to_graph: true
+        identity_pubkey: identity_pubkey
+        num_pending_channels: 0
+        num_peers: 5
+        implementation: implementation
+        num_active_channels: 6
+        block_height: 5
+        version: version
+      properties:
+        implementation:
+          description: "Lightning software implementation (LND, c-lightning)"
+          title: Implementation
+          type: string
+        version:
+          description: Version of the implementation
+          title: Version
+          type: string
+        identity_pubkey:
+          description: The identity pubkey of the current node
+          title: Identity Pubkey
+          type: string
+        num_pending_channels:
+          description: Number of pending channels
+          title: Num Pending Channels
+          type: integer
+        num_active_channels:
+          description: Number of active channels
+          title: Num Active Channels
+          type: integer
+        num_inactive_channels:
+          description: Number of inactive channels
+          title: Num Inactive Channels
+          type: integer
+        num_peers:
+          description: Number of peers
+          title: Num Peers
+          type: integer
+        block_height:
+          description: The node's current view of the height of the best block
+          title: Block Height
+          type: integer
+        synced_to_chain:
+          description: Whether the wallet's view is synced to the main chain
+          title: Synced To Chain
+          type: boolean
+        synced_to_graph:
+          description: Whether we consider ourselves synced with the public channel
+            graph.
+          title: Synced To Graph
+          type: boolean
+      required:
+      - block_height
+      - identity_pubkey
+      - implementation
+      - num_active_channels
+      - num_inactive_channels
+      - num_peers
+      - num_pending_channels
+      - version
+      title: LightningInfoLite
+      type: object
+    LnInfo:
+      example:
+        num_inactive_channels: 1
+        synced_to_graph: true
+        color: color
+        identity_pubkey: The identity pubkey of the current node.
+        chains:
+        - chain: chain
+          network: network
+        - chain: chain
+          network: network
+        implementation: implementation
+        best_header_timestamp: 2
+        block_hash: block_hash
+        block_height: 5
+        version: version
+        commit_hash: commit_hash
+        uris:
+        - uris
+        - uris
+        features:
+        - value:
+            is_required: true
+            is_known: true
+            name: name
+          key: 9
+        - value:
+            is_required: true
+            is_known: true
+            name: name
+          key: 9
+        synced_to_chain: true
+        num_pending_channels: 0
+        num_peers: 5
+        num_active_channels: 6
+        identity_uri: The complete URI (pubkey@physicaladdress:port) the current node.
+        alias: alias
+      properties:
+        implementation:
+          description: "Lightning software implementation (LND, CLN)"
+          title: Implementation
+          type: string
+        version:
+          description: The version of the software that the node is running.
+          title: Version
+          type: string
+        commit_hash:
+          description: The SHA1 commit hash that the daemon is compiled with.
+          title: Commit Hash
+          type: string
+        identity_pubkey:
+          default: The identity pubkey of the current node.
+          title: Identity Pubkey
+          type: string
+        identity_uri:
+          default: The complete URI (pubkey@physicaladdress:port) the current node.
+          title: Identity Uri
+          type: string
+        alias:
+          description: The alias of the node.
+          title: Alias
+          type: string
+        color:
+          description: The color of the current node in hex code format.
+          title: Color
+          type: string
+        num_pending_channels:
+          description: Number of pending channels.
+          title: Num Pending Channels
+          type: integer
+        num_active_channels:
+          description: Number of active channels.
+          title: Num Active Channels
+          type: integer
+        num_inactive_channels:
+          description: Number of inactive channels.
+          title: Num Inactive Channels
+          type: integer
+        num_peers:
+          description: Number of peers.
+          title: Num Peers
+          type: integer
+        block_height:
+          description: The node's current view of the height of the best block. Only
+            available with LND.
+          title: Block Height
+          type: integer
+        block_hash:
+          default: ""
+          description: The node's current view of the hash of the best block. Only
+            available with LND.
+          title: Block Hash
+          type: string
+        best_header_timestamp:
+          description: Timestamp of the block best known to the wallet. Only available
+            with LND.
+          title: Best Header Timestamp
+          type: integer
+        synced_to_chain:
+          description: Whether the wallet's view is synced to the main chain. Only
+            available with LND.
+          title: Synced To Chain
+          type: boolean
+        synced_to_graph:
+          description: Whether we consider ourselves synced with the public channel
+            graph. Only available with LND.
+          title: Synced To Graph
+          type: boolean
+        chains:
+          default: []
+          description: A list of active chains the node is connected to
+          items:
+            $ref: '#/components/schemas/Chain'
+          title: Chains
+          type: array
+        uris:
+          default: []
+          description: The URIs of the current node.
+          items:
+            type: string
+          title: Uris
+          type: array
+        features:
+          default: []
+          description: Features that our node has advertised in our init message node
+            announcements and invoices. Not yet implemented with CLN
+          items:
+            $ref: '#/components/schemas/FeaturesEntry'
+          title: Features
+          type: array
+      required:
+      - alias
+      - block_height
+      - color
+      - commit_hash
+      - implementation
+      - num_active_channels
+      - num_inactive_channels
+      - num_peers
+      - num_pending_channels
+      - version
+      title: LnInfo
+      type: object
+    LoginInput:
+      example:
+        password: password
+        one_time_password: one_time_password
+      properties:
+        password:
+          minLength: 8
+          title: Password
+          type: string
+        one_time_password:
+          maxLength: 6
+          minLength: 6
+          pattern: "^[0-9]+$"
+          title: One Time Password
+          type: string
+      required:
+      - password
+      title: LoginInput
+      type: object
+    MPPRecord:
+      example:
+        payment_addr: payment_addr
+        total_amt_msat: 7
+      properties:
+        payment_addr:
+          title: Payment Addr
+          type: string
+        total_amt_msat:
+          title: Total Amt Msat
+          type: integer
+      required:
+      - payment_addr
+      - total_amt_msat
+      title: MPPRecord
+      type: object
+    NetworkInfo:
+      example:
+        local_services: local_services
+        time_offset: 1
+        warnings: warnings
+        connections_out: 2
+        incremental_fee: 9
+        connections_in: 5
+        networks:
+        - proxy: proxy
+          limited: true
+          proxy_randomize_credentials: true
+          name: name
+          reachable: true
+        - proxy: proxy
+          limited: true
+          proxy_randomize_credentials: true
+          name: name
+          reachable: true
+        version: 0
+        network_active: true
+        protocol_version: 6
+        local_relay: true
+        subversion: subversion
+        local_services_names:
+        - local_services_names
+        - local_services_names
+        relay_fee: 7
+        local_addresses:
+        - score: 2
+          address: address
+          port: 3
+        - score: 2
+          address: address
+          port: 3
+        connections: 5
+      properties:
+        version:
+          description: The bitcoin core server version
+          title: Version
+          type: integer
+        subversion:
+          description: The server subversion string
+          title: Subversion
+          type: string
+        protocol_version:
+          description: The protocol version
+          title: Protocol Version
+          type: integer
+        local_services:
+          description: "The services we offer to the network, hex formatted"
+          title: Local Services
+          type: string
+        local_services_names:
+          default: []
+          description: "The services we offer to the network, in human-readable form"
+          items:
+            type: string
+          title: Local Services Names
+          type: array
+        local_relay:
+          description: True if transaction relay is requested from peers
+          title: Local Relay
+          type: boolean
+        time_offset:
+          description: The time offset
+          title: Time Offset
+          type: integer
+        connections:
+          description: The total number of connections
+          title: Connections
+          type: integer
+        connections_in:
+          description: The number of inbound connections
+          title: Connections In
+          type: integer
+        connections_out:
+          description: The number of outbound connections
+          title: Connections Out
+          type: integer
+        network_active:
+          description: Whether p2p networking is enabled
+          title: Network Active
+          type: boolean
+        networks:
+          description: Information per network
+          items:
+            $ref: '#/components/schemas/BtcNetwork'
+          title: Networks
+          type: array
+        relay_fee:
+          description: Minimum relay fee for transactions in BTC/kB
+          title: Relay Fee
+          type: integer
+        incremental_fee:
+          description: Minimum fee increment for mempool limiting or BIP 125 replacement
+            in BTC/kB
+          title: Incremental Fee
+          type: integer
+        local_addresses:
+          default: []
+          description: List of local addresses
+          items:
+            $ref: '#/components/schemas/BtcLocalAddress'
+          title: Local Addresses
+          type: array
+        warnings:
+          description: Any network and blockchain warnings
+          title: Warnings
+          type: string
+      required:
+      - connections
+      - connections_in
+      - connections_out
+      - incremental_fee
+      - local_relay
+      - network_active
+      - networks
+      - protocol_version
+      - relay_fee
+      - subversion
+      - time_offset
+      - version
+      title: NetworkInfo
+      type: object
+    NewAddressInput:
+      example:
+        type: ""
+      properties:
+        type:
+          allOf:
+          - $ref: '#/components/schemas/OnchainAddressType'
+          description: "\nAddress-types has to be one of:\n* p2wkh:  Pay to witness\
+            \ key hash (bech32)\n* np2wkh: Pay to nested witness key hash\n    "
+      required:
+      - type
+      title: NewAddressInput
+      type: object
+    OnChainTransaction:
+      example:
+        num_confirmations: 6
+        dest_addresses:
+        - dest_addresses
+        - dest_addresses
+        amount: 0
+        time_stamp: 5
+        total_fees: 5
+        tx_hash: tx_hash
+        block_height: 1
+        label: label
+      properties:
+        tx_hash:
+          description: The transaction hash
+          title: Tx Hash
+          type: string
+        amount:
+          description: "The transaction amount, denominated in satoshis"
+          title: Amount
+          type: integer
+        num_confirmations:
+          description: The number of confirmations
+          title: Num Confirmations
+          type: integer
+        block_height:
+          description: The height of the block this transaction was included in
+          title: Block Height
+          type: integer
+        time_stamp:
+          description: Timestamp of this transaction
+          title: Time Stamp
+          type: integer
+        total_fees:
+          description: Fees paid for this transaction
+          title: Total Fees
+          type: integer
+        dest_addresses:
+          default: []
+          description: Addresses that received funds for this transaction
+          items:
+            type: string
+          title: Dest Addresses
+          type: array
+        label:
+          default: ""
+          description: An optional label that was set on transaction broadcast.
+          title: Label
+          type: string
+      required:
+      - amount
+      - block_height
+      - num_confirmations
+      - time_stamp
+      - total_fees
+      - tx_hash
+      title: OnChainTransaction
+      type: object
+    OnchainAddressType:
+      description: An enumeration.
+      enum:
+      - p2wkh
+      - np2wkh
+      title: OnchainAddressType
+      type: string
+    Payment:
+      example:
+        value_msat: 0
+        payment_index: 3
+        payment_request: payment_request
+        fee_msat: 6
+        payment_preimage: payment_preimage
+        creation_time_ns: 1
+        label: label
+        failure_reason: ""
+        payment_hash: payment_hash
+        status: ""
+        htlcs:
+        - route:
+            total_amt: 7
+            custom_records:
+            - value: value
+              key: 5
+            - value: value
+              key: 5
+            total_fees: 2
+            hops:
+            - chan_capacity: 3
+              chan_id: 9
+              fee_msat: 1
+              fee: 4
+              expiry: 7
+              amt_to_forward_msat: 1
+              tlv_payload: true
+              amt_to_forward: 2
+              pub_key: pub_key
+            - chan_capacity: 3
+              chan_id: 9
+              fee_msat: 1
+              fee: 4
+              expiry: 7
+              amt_to_forward_msat: 1
+              tlv_payload: true
+              amt_to_forward: 2
+              pub_key: pub_key
+            total_amt_msat: 6
+            mpp_record:
+              payment_addr: payment_addr
+              total_amt_msat: 7
+            total_fees_msat: 1
+            amp_record:
+              child_index: 1
+              root_share: root_share
+              set_id: set_id
+            total_time_lock: 5
+          failure:
+            htlc_msat: 6
+            code: 9
+            onion_sha_256: onion_sha_256
+            channel_update:
+              time_lock_delta: 6
+              base_fee: 6
+              chan_id: 9
+              channel_flags: 9
+              signature: signature
+              htlc_maximum_msat: 2
+              chain_hash: chain_hash
+              extra_opaque_data: extra_opaque_data
+              message_flags: 8
+              htlc_minimum_msat: 3
+              timestamp: 6
+              fee_rate: 1
+            cltv_expiry: 6
+            flags: 5
+            failure_source_index: 6
+            height: 3
+          preimage: preimage
+          resolve_time_ns: 5
+          attempt_id: 5
+          status: null
+          attempt_time_ns: 4
+        - route:
+            total_amt: 7
+            custom_records:
+            - value: value
+              key: 5
+            - value: value
+              key: 5
+            total_fees: 2
+            hops:
+            - chan_capacity: 3
+              chan_id: 9
+              fee_msat: 1
+              fee: 4
+              expiry: 7
+              amt_to_forward_msat: 1
+              tlv_payload: true
+              amt_to_forward: 2
+              pub_key: pub_key
+            - chan_capacity: 3
+              chan_id: 9
+              fee_msat: 1
+              fee: 4
+              expiry: 7
+              amt_to_forward_msat: 1
+              tlv_payload: true
+              amt_to_forward: 2
+              pub_key: pub_key
+            total_amt_msat: 6
+            mpp_record:
+              payment_addr: payment_addr
+              total_amt_msat: 7
+            total_fees_msat: 1
+            amp_record:
+              child_index: 1
+              root_share: root_share
+              set_id: set_id
+            total_time_lock: 5
+          failure:
+            htlc_msat: 6
+            code: 9
+            onion_sha_256: onion_sha_256
+            channel_update:
+              time_lock_delta: 6
+              base_fee: 6
+              chan_id: 9
+              channel_flags: 9
+              signature: signature
+              htlc_maximum_msat: 2
+              chain_hash: chain_hash
+              extra_opaque_data: extra_opaque_data
+              message_flags: 8
+              htlc_minimum_msat: 3
+              timestamp: 6
+              fee_rate: 1
+            cltv_expiry: 6
+            flags: 5
+            failure_source_index: 6
+            height: 3
+          preimage: preimage
+          resolve_time_ns: 5
+          attempt_id: 5
+          status: null
+          attempt_time_ns: 4
+      properties:
+        payment_hash:
+          description: The payment hash
+          title: Payment Hash
+          type: string
+        payment_preimage:
+          description: The payment preimage
+          title: Payment Preimage
+          type: string
+        value_msat:
+          description: The value of the payment in milli-satoshis
+          title: Value Msat
+          type: integer
+        payment_request:
+          description: The optional payment request being fulfilled.
+          title: Payment Request
+          type: string
+        status:
+          allOf:
+          - $ref: '#/components/schemas/PaymentStatus'
+          description: The status of the payment.
+        fee_msat:
+          description: The fee paid for this payment in msat
+          title: Fee Msat
+          type: integer
+        creation_time_ns:
+          description: The time in UNIX nanoseconds at which the payment was created.
+          title: Creation Time Ns
+          type: integer
+        htlcs:
+          default: []
+          description: The HTLCs made in attempt to settle the payment.
+          items:
+            $ref: '#/components/schemas/HTLCAttempt'
+          title: Htlcs
+          type: array
+        payment_index:
+          default: 0
+          description: "The payment index. Only set with LND, 0 otherwise."
+          title: Payment Index
+          type: integer
+        label:
+          default: ""
+          description: "The payment label. Only set with CLN, empty otherwise."
+          title: Label
+          type: string
+        failure_reason:
+          allOf:
+          - $ref: '#/components/schemas/PaymentFailureReason'
+          description: The failure reason
+      required:
+      - creation_time_ns
+      - fee_msat
+      - payment_hash
+      - value_msat
+      title: Payment
+      type: object
+    PaymentFailureReason:
+      description: An enumeration.
+      enum:
+      - FAILURE_REASON_NONE
+      - FAILURE_REASON_TIMEOUT
+      - FAILURE_REASON_NO_ROUTE
+      - FAILURE_REASON_ERROR
+      - FAILURE_REASON_INCORRECT_PAYMENT_DETAILS
+      - FAILURE_REASON_INSUFFICIENT_BALANCE
+      title: PaymentFailureReason
+      type: string
+    PaymentRequest:
+      example:
+        description_hash: description_hash
+        destination: destination
+        description: description
+        fallback_addr: fallback_addr
+        num_satoshis: 0
+        route_hints:
+        - hop_hints:
+          - fee_base_msat: 7
+            chan_id: chan_id
+            cltv_expiry_delta: 3
+            fee_proportional_millionths: 9
+            node_id: node_id
+          - fee_base_msat: 7
+            chan_id: chan_id
+            cltv_expiry_delta: 3
+            fee_proportional_millionths: 9
+            node_id: node_id
+        - hop_hints:
+          - fee_base_msat: 7
+            chan_id: chan_id
+            cltv_expiry_delta: 3
+            fee_proportional_millionths: 9
+            node_id: node_id
+          - fee_base_msat: 7
+            chan_id: chan_id
+            cltv_expiry_delta: 3
+            fee_proportional_millionths: 9
+            node_id: node_id
+        features:
+        - value:
+            is_required: true
+            is_known: true
+            name: name
+          key: 9
+        - value:
+            is_required: true
+            is_known: true
+            name: name
+          key: 9
+        payment_addr: payment_addr
+        cltv_expiry: 5
+        num_msat: 5
+        currency: currency
+        expiry: 1
+        payment_hash: payment_hash
+        timestamp: 6
+      properties:
+        destination:
+          title: Destination
+          type: string
+        payment_hash:
+          title: Payment Hash
+          type: string
+        num_satoshis:
+          description: Deprecated. User num_msat instead
+          title: Num Satoshis
+          type: integer
+        timestamp:
+          title: Timestamp
+          type: integer
+        expiry:
+          title: Expiry
+          type: integer
+        description:
+          title: Description
+          type: string
+        description_hash:
+          title: Description Hash
+          type: string
+        fallback_addr:
+          title: Fallback Addr
+          type: string
+        cltv_expiry:
+          title: Cltv Expiry
+          type: integer
+        route_hints:
+          default: []
+          description: "A list of [HopHint] for the RouteHint"
+          items:
+            $ref: '#/components/schemas/RouteHint'
+          title: Route Hints
+          type: array
+        payment_addr:
+          default: ""
+          description: The payment address in hex format
+          title: Payment Addr
+          type: string
+        num_msat:
+          title: Num Msat
+          type: integer
+        features:
+          default: []
+          items:
+            $ref: '#/components/schemas/FeaturesEntry'
+          title: Features
+          type: array
+        currency:
+          default: ""
+          description: 'Optional requested currency of the payment. '
+          title: Currency
+          type: string
+      required:
+      - cltv_expiry
+      - description
+      - destination
+      - expiry
+      - payment_hash
+      - timestamp
+      title: PaymentRequest
+      type: object
+    PaymentStatus:
+      description: An enumeration.
+      enum:
+      - unknown
+      - in_flight
+      - succeeded
+      - failed
+      title: PaymentStatus
+      type: string
+    RawDebugLogData:
+      example:
+        github_issues_url: https://www.github.com/rootzoll/raspiblitz/issues
+        raw_data: raw_data
+      properties:
+        raw_data:
+          description: The raw debug log text
+          title: Raw Data
+          type: string
+        github_issues_url:
+          default: https://www.github.com/rootzoll/raspiblitz/issues
+          description: Link to the Raspiblitz issue tracker
+          title: Github Issues Url
+          type: string
+      required:
+      - raw_data
+      title: RawDebugLogData
+      type: object
+    Route:
+      example:
+        total_amt: 7
+        custom_records:
+        - value: value
+          key: 5
+        - value: value
+          key: 5
+        total_fees: 2
+        hops:
+        - chan_capacity: 3
+          chan_id: 9
+          fee_msat: 1
+          fee: 4
+          expiry: 7
+          amt_to_forward_msat: 1
+          tlv_payload: true
+          amt_to_forward: 2
+          pub_key: pub_key
+        - chan_capacity: 3
+          chan_id: 9
+          fee_msat: 1
+          fee: 4
+          expiry: 7
+          amt_to_forward_msat: 1
+          tlv_payload: true
+          amt_to_forward: 2
+          pub_key: pub_key
+        total_amt_msat: 6
+        mpp_record:
+          payment_addr: payment_addr
+          total_amt_msat: 7
+        total_fees_msat: 1
+        amp_record:
+          child_index: 1
+          root_share: root_share
+          set_id: set_id
+        total_time_lock: 5
+      properties:
+        total_time_lock:
+          title: Total Time Lock
+          type: integer
+        total_fees:
+          title: Total Fees
+          type: integer
+        total_amt:
+          title: Total Amt
+          type: integer
+        hops:
+          items:
+            $ref: '#/components/schemas/Hop'
+          title: Hops
+          type: array
+        total_fees_msat:
+          title: Total Fees Msat
+          type: integer
+        total_amt_msat:
+          title: Total Amt Msat
+          type: integer
+        mpp_record:
+          $ref: '#/components/schemas/MPPRecord'
+        amp_record:
+          $ref: '#/components/schemas/AMPRecord'
+        custom_records:
+          items:
+            $ref: '#/components/schemas/CustomRecordsEntry'
+          title: Custom Records
+          type: array
+      required:
+      - custom_records
+      - hops
+      - total_amt
+      - total_amt_msat
+      - total_fees
+      - total_fees_msat
+      - total_time_lock
+      title: Route
+      type: object
+    RouteHint:
+      example:
+        hop_hints:
+        - fee_base_msat: 7
+          chan_id: chan_id
+          cltv_expiry_delta: 3
+          fee_proportional_millionths: 9
+          node_id: node_id
+        - fee_base_msat: 7
+          chan_id: chan_id
+          cltv_expiry_delta: 3
+          fee_proportional_millionths: 9
+          node_id: node_id
+      properties:
+        hop_hints:
+          default: []
+          description: A list of hop hints that when chained together can assist in
+            reaching a specific destination.
+          items:
+            $ref: '#/components/schemas/HopHint'
+          title: Hop Hints
+          type: array
+      title: RouteHint
+      type: object
+    SendCoinsInput:
+      example:
+        amount: 0
+        address: address
+        sat_per_vbyte: 1
+        target_conf: 6
+        label: label
+        min_confs: 5
+      properties:
+        address:
+          description: The base58 or bech32 encoded bitcoin address to send coins
+            to on-chain
+          title: Address
+          type: string
+        amount:
+          description: The number of bitcoin denominated in satoshis to send
+          title: Amount
+          type: integer
+        target_conf:
+          description: "The number of blocks that the transaction *should* confirm\
+            \ in, will be used for fee estimation"
+          title: Target Conf
+          type: integer
+        sat_per_vbyte:
+          description: "A manual fee expressed in sat/vbyte that should be used when\
+            \ crafting the transaction (default: 0)"
+          title: Sat Per Vbyte
+          type: integer
+        min_confs:
+          default: 1
+          description: The minimum number of confirmations each one of your outputs
+            used for the transaction must satisfy
+          title: Min Confs
+          type: integer
+        label:
+          default: ""
+          description: A label for the transaction. Ignored by CLN backend.
+          title: Label
+          type: string
+      required:
+      - address
+      - amount
+      title: SendCoinsInput
+      type: object
+    SendCoinsResponse:
+      example:
+        amount: 0
+        address: address
+        txid: txid
+        label: label
+      properties:
+        txid:
+          description: The transaction ID for this onchain payment
+          title: Txid
+          type: string
+        address:
+          description: The base58 or bech32 encoded bitcoin address where the onchain
+            funds where sent to
+          title: Address
+          type: string
+        amount:
+          description: The number of bitcoin denominated in satoshis which where sent
+          title: Amount
+          type: integer
+        label:
+          default: ""
+          description: The label used for the transaction. Ignored by CLN backend.
+          title: Label
+          type: string
+      required:
+      - address
+      - amount
+      - txid
+      title: SendCoinsResponse
+      type: object
+    SoftFork:
+      example:
+        name: name
+        active: true
+        type: type
+        bip9: null
+        height: 3
+      properties:
+        name:
+          description: Name of the softfork
+          title: Name
+          type: string
+        type:
+          description: "One of \"buried\", \"bip9\""
+          title: Type
+          type: string
+        active:
+          description: True **if** the rules are enforced for the mempool and the
+            next block
+          title: Active
+          type: boolean
+        bip9:
+          $ref: '#/components/schemas/Bip9'
+        height:
+          description: "Height of the first block which the rules are or will be enforced\
+            \ (only for `buried` type, or `bip9` type with `active` status)"
+          title: Height
+          type: integer
+      required:
+      - active
+      - name
+      - type
+      title: SoftFork
+      type: object
+    StartDoneData:
+      example:
+        lightning: lightning
+        hostname: hostname
+        forceFreshSetup: false
+        keepBlockchain: true
+        passwordC: passwordC
+        passwordB: passwordB
+        passwordA: passwordA
+      properties:
+        hostname:
+          default: ""
+          title: Hostname
+          type: string
+        forceFreshSetup:
+          default: false
+          title: Forcefreshsetup
+          type: boolean
+        keepBlockchain:
+          default: true
+          title: Keepblockchain
+          type: boolean
+        lightning:
+          default: ""
+          title: Lightning
+          type: string
+        passwordA:
+          default: ""
+          title: Passworda
+          type: string
+        passwordB:
+          default: ""
+          title: Passwordb
+          type: string
+        passwordC:
+          default: ""
+          title: Passwordc
+          type: string
+      title: StartDoneData
+      type: object
+    SystemInfo:
+      example:
+        tor_web_ui: tor_web_ui
+        chain: chain
+        ssh_address: ssh_address
+        color: color
+        platform_version: platform_version
+        lan_api: lan_api
+        alias: alias
+        api_version: api_version
+        lan_web_ui: lan_web_ui
+        tor_api: tor_api
+        platform: ""
+      properties:
+        alias:
+          default: ""
+          description: Name of the node (same as Lightning alias)
+          title: Alias
+          type: string
+        color:
+          description: The color of the current node in hex code format
+          title: Color
+          type: string
+        platform:
+          allOf:
+          - $ref: '#/components/schemas/APIPlatform'
+          description: The platform this API is running on.
+        platform_version:
+          default: ""
+          description: The version of this platform
+          title: Platform Version
+          type: string
+        api_version:
+          description: Version of the API software on this system.
+          title: Api Version
+          type: string
+        tor_web_ui:
+          default: ""
+          description: WebUI TOR address
+          title: Tor Web Ui
+          type: string
+        tor_api:
+          default: ""
+          description: API TOR address
+          title: Tor Api
+          type: string
+        lan_web_ui:
+          default: ""
+          description: WebUI LAN address
+          title: Lan Web Ui
+          type: string
+        lan_api:
+          default: ""
+          description: API LAN address
+          title: Lan Api
+          type: string
+        ssh_address:
+          description: Address to ssh into on local LAN (e.g. `ssh admin@192.168.1.28`
+          title: Ssh Address
+          type: string
+        chain:
+          description: "The current chain this node is connected to (mainnet, testnet\
+            \ or signet)"
+          title: Chain
+          type: string
+      required:
+      - api_version
+      - chain
+      - color
+      - ssh_address
+      title: SystemInfo
+      type: object
+    TxCategory:
+      description: An enumeration.
+      enum:
+      - onchain
+      - ln
+      title: TxCategory
+      type: string
+    TxStatus:
+      description: An enumeration.
+      enum:
+      - unknown
+      - in_flight
+      - succeeded
+      - failed
+      title: TxStatus
+      type: string
+    TxType:
+      description: An enumeration.
+      enum:
+      - unknown
+      - send
+      - receive
+      title: TxType
+      type: string
+    UninstallData:
+      example:
+        keepData: true
+      properties:
+        keepData:
+          default: true
+          title: Keepdata
+          type: boolean
+      title: UninstallData
+      type: object
+    UnlockWalletInput:
+      example:
+        password: password
+      properties:
+        password:
+          description: The wallet password
+          title: Password
+          type: string
+      required:
+      - password
+      title: UnlockWalletInput
+      type: object
+    ValidationError:
+      properties:
+        loc:
+          items:
+            $ref: '#/components/schemas/Location_inner'
+          title: Location
+          type: array
+        msg:
+          title: Message
+          type: string
+        type:
+          title: Error Type
+          type: string
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+      type: object
+    WalletBalance:
+      example:
+        channel_remote_balance: 5
+        channel_unsettled_local_balance: 2
+        onchain_confirmed_balance: 0
+        onchain_total_balance: 6
+        onchain_unconfirmed_balance: 1
+        channel_unsettled_remote_balance: 7
+        channel_local_balance: 5
+        channel_pending_open_local_balance: 9
+        channel_pending_open_remote_balance: 3
+      properties:
+        onchain_confirmed_balance:
+          description: Confirmed onchain balance (more than three confirmations) in
+            sat
+          title: Onchain Confirmed Balance
+          type: integer
+        onchain_total_balance:
+          description: Total combined onchain balance in sat
+          title: Onchain Total Balance
+          type: integer
+        onchain_unconfirmed_balance:
+          description: Unconfirmed onchain balance (less than three confirmations)
+            in sat
+          title: Onchain Unconfirmed Balance
+          type: integer
+        channel_local_balance:
+          description: Sum of channels local balances in msat
+          title: Channel Local Balance
+          type: integer
+        channel_remote_balance:
+          description: Sum of channels remote balances in msat.
+          title: Channel Remote Balance
+          type: integer
+        channel_unsettled_local_balance:
+          description: Sum of channels local unsettled balances in msat.
+          title: Channel Unsettled Local Balance
+          type: integer
+        channel_unsettled_remote_balance:
+          description: Sum of channels remote unsettled balances in msat.
+          title: Channel Unsettled Remote Balance
+          type: integer
+        channel_pending_open_local_balance:
+          description: Sum of channels pending local balances in msat.
+          title: Channel Pending Open Local Balance
+          type: integer
+        channel_pending_open_remote_balance:
+          description: Sum of channels pending remote balances in msat.
+          title: Channel Pending Open Remote Balance
+          type: integer
+      required:
+      - channel_local_balance
+      - channel_pending_open_local_balance
+      - channel_pending_open_remote_balance
+      - channel_remote_balance
+      - channel_unsettled_local_balance
+      - channel_unsettled_remote_balance
+      - onchain_confirmed_balance
+      - onchain_total_balance
+      - onchain_unconfirmed_balance
+      title: WalletBalance
+      type: object
+    Statistics:
+      allOf:
+      - $ref: '#/components/schemas/Bip9Statistics'
+      description: numeric statistics about BIP9 signalling for a softfork(only for
+        `started` status)
+      title: Statistics
+    Amp:
+      allOf:
+      - $ref: '#/components/schemas/AMP'
+      description: "Details relevant to AMP HTLCs, only populated if this is an AMP\
+        \ HTLC."
+      title: Amp
+    Bip9:
+      allOf:
+      - $ref: '#/components/schemas/Bip9Data'
+      description: Status of bip9 softforks(only for "bip9" type)
+      title: Bip9
+    Location_inner:
+      anyOf:
+      - type: string
+      - type: integer
+  securitySchemes:
+    JWTBearer:
+      scheme: bearer
+      type: http
